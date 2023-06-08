@@ -25,7 +25,12 @@ public class FormListener implements Listener {
     public static final HashMap<Player, HashMap<Integer, FormType>> UI_CACHE = new HashMap<>();
     
     public static void showFormWindow(Player player, FormWindow window, FormType guiType) {
-        UI_CACHE.computeIfAbsent(player, i -> new HashMap<>()).put(player.showFormWindow(window), guiType);
+        try {
+            Thread.sleep(500);
+            UI_CACHE.computeIfAbsent(player, i -> new HashMap<>()).put(player.showFormWindow(window), guiType);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     @EventHandler
