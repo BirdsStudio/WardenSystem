@@ -100,7 +100,7 @@ public class FormMain {
                 window.addButton(new ElementButton("切换至生存模式"));
                 window.addButton(new ElementButton("切换至观察者模式"));
                 break;
-            case 2:
+            case 3:
                 window.addButton(new ElementButton("切换至生存模式"));
                 window.addButton(new ElementButton("切换至创造模式"));
                 break;
@@ -176,12 +176,10 @@ public class FormMain {
     public static void showSelectPlayer(Player player, FormType type){
         Collection<Player> players = Server.getInstance().getOnlinePlayers().values();
         FormWindowSimple window;
-        if(players.size() > 1){
+        if(players.size() > 0){
             window = new FormWindowSimple("协管系统 - 传送工具","请选择您要传送到的玩家！");
             for(Player p: players){
-                if(!p.equals(player)){
-                    window.addButton(new ElementButton(p.getName()));
-                }
+                window.addButton(new ElementButton(p.getName()));
             }
         }else{
             window = new FormWindowSimple("协管系统 - 传送工具","目前没有玩家在线！");

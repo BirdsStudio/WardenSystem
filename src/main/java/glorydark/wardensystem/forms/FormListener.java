@@ -83,7 +83,7 @@ public class FormListener implements Listener {
         if(guiType == null){
             return;
         }
-        UI_CACHE.remove(p);
+        UI_CACHE.get(p).remove(event.getFormID());
         if (event.getResponse() == null) {
             return;
         }
@@ -128,16 +128,16 @@ public class FormListener implements Listener {
                 break;
             case WardenTools:
                 switch (id){
-                    case 1:
+                    case 0:
                         FormMain.showSelectPlayer(player, FormType.WardenTeleportTools);
                         break;
-                    case 2:
+                    case 1:
                         player.getInventory().clearAll();
                         player.sendMessage("§a您的背包已清空！");
                         MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用清空背包功能！");
                         break;
+                    case 2:
                     case 3:
-                    case 4:
                         switch (window.getResponse().getClickedButton().getText()){
                             case "切换至生存模式":
                                 player.setGamemode(0);
