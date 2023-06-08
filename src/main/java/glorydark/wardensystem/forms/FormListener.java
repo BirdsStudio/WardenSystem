@@ -450,7 +450,12 @@ public class FormListener implements Listener {
                 }
                 break;
             case WardenPunish:
-                String punishedPn = response.getInputResponse(0);
+                String punishedPn;
+                if(response.getResponse(0) != null && response.getInputResponse(0).equals("")){
+                    punishedPn = response.getDropdownResponse(1).getElementContent();
+                }else{
+                    punishedPn = response.getInputResponse(0);
+                }
                 if(punishedPn.equals("")){
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
                     return;
@@ -462,25 +467,25 @@ public class FormListener implements Listener {
                 }
                 Config config;
                 Player punished = Server.getInstance().getPlayer(punishedPn);
-                switch (response.getDropdownResponse(1).getElementID()){
+                switch (response.getDropdownResponse(2).getElementID()){
                     case 0:
                         config = new Config(MainClass.path + "/ban.yml", Config.YAML);
-                        if(response.getToggleResponse(2)){
+                        if(response.getToggleResponse(3)){
                             config.set(punishedPn+".start", System.currentTimeMillis());
                             config.set(punishedPn+".end", "permanent");
                         }else{
                             Calendar calendar = new Calendar.Builder().setInstant(System.currentTimeMillis()).build();
-                            calendar.add(Calendar.YEAR, (int) response.getSliderResponse(3));
-                            calendar.add(Calendar.MONTH, (int) response.getSliderResponse(4));
-                            calendar.add(Calendar.DATE, (int) response.getSliderResponse(5));
-                            calendar.add(Calendar.HOUR, (int) response.getSliderResponse(6));
-                            calendar.add(Calendar.MINUTE, (int) response.getSliderResponse(7));
-                            calendar.add(Calendar.SECOND, (int) response.getSliderResponse(8));
+                            calendar.add(Calendar.YEAR, (int) response.getSliderResponse(4));
+                            calendar.add(Calendar.MONTH, (int) response.getSliderResponse(5));
+                            calendar.add(Calendar.DATE, (int) response.getSliderResponse(6));
+                            calendar.add(Calendar.HOUR, (int) response.getSliderResponse(7));
+                            calendar.add(Calendar.MINUTE, (int) response.getSliderResponse(8));
+                            calendar.add(Calendar.SECOND, (int) response.getSliderResponse(9));
                             config.set(punishedPn+".start", System.currentTimeMillis());
                             config.set(punishedPn+".end", calendar.getTimeInMillis());
                         }
                         config.set(punishedPn+".operator", player.getName());
-                        config.set(punishedPn+".reason", response.getInputResponse(9));
+                        config.set(punishedPn+".reason", response.getInputResponse(10));
                         config.save();
                         MainClass.log.log(Level.INFO, "["+player.getName()+"]成功封禁玩家["+punishedPn+"]");
                         if(punished != null){
@@ -491,22 +496,22 @@ public class FormListener implements Listener {
                         config = new Config(MainClass.path + "/mute.yml", Config.YAML);
                         MainClass.log.log(Level.INFO, "["+player.getName()+"]成功禁言玩家["+punishedPn+"]");
                         if(punished != null){
-                            if(response.getToggleResponse(2)){
+                            if(response.getToggleResponse(3)){
                                 config.set(punishedPn+".start", System.currentTimeMillis());
                                 config.set(punishedPn+".end", "permanent");
                             }else{
                                 Calendar calendar = new Calendar.Builder().setInstant(System.currentTimeMillis()).build();
-                                calendar.add(Calendar.YEAR, (int) response.getSliderResponse(3));
-                                calendar.add(Calendar.MONTH, (int) response.getSliderResponse(4));
-                                calendar.add(Calendar.DATE, (int) response.getSliderResponse(5));
-                                calendar.add(Calendar.HOUR, (int) response.getSliderResponse(6));
-                                calendar.add(Calendar.MINUTE, (int) response.getSliderResponse(7));
-                                calendar.add(Calendar.SECOND, (int) response.getSliderResponse(8));
+                                calendar.add(Calendar.YEAR, (int) response.getSliderResponse(4));
+                                calendar.add(Calendar.MONTH, (int) response.getSliderResponse(5));
+                                calendar.add(Calendar.DATE, (int) response.getSliderResponse(6));
+                                calendar.add(Calendar.HOUR, (int) response.getSliderResponse(7));
+                                calendar.add(Calendar.MINUTE, (int) response.getSliderResponse(8));
+                                calendar.add(Calendar.SECOND, (int) response.getSliderResponse(9));
                                 config.set(punishedPn+".start", System.currentTimeMillis());
                                 config.set(punishedPn+".end", calendar.getTimeInMillis());
                             }
                             config.set(punishedPn+".operator", player.getName());
-                            config.set(punishedPn+".reason", response.getInputResponse(9));
+                            config.set(punishedPn+".reason", response.getInputResponse(10));
                             config.save();
                             punished.sendMessage("您已被禁言!");
                             MainClass.muted.add(punishedPn);
