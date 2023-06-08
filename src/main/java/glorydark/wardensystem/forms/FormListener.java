@@ -25,12 +25,7 @@ public class FormListener implements Listener {
     public static final HashMap<Player, HashMap<Integer, FormType>> UI_CACHE = new HashMap<>();
     
     public static void showFormWindow(Player player, FormWindow window, FormType guiType) {
-        try {
-            Thread.sleep(500);
-            UI_CACHE.computeIfAbsent(player, i -> new HashMap<>()).put(player.showFormWindow(window), guiType);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        UI_CACHE.computeIfAbsent(player, i -> new HashMap<>()).put(player.showFormWindow(window), guiType);
     }
     
     @EventHandler
@@ -88,7 +83,7 @@ public class FormListener implements Listener {
         if(guiType == null){
             return;
         }
-        UI_CACHE.get(p).remove(event.getFormID());
+        UI_CACHE.remove(p);
         if (event.getResponse() == null) {
             return;
         }
@@ -158,11 +153,21 @@ public class FormListener implements Listener {
                 }
                 break;
             case WardenDealBugReportList:
+                String text = window.getResponse().getClickedButton().getText();
+                if(text.equals("返回") || text.equals("")){
+                    FormMain.showWardenReportTypeList(player);
+                    return;
+                }
                 BugReport select = MainClass.bugReports.get(id);
                 MainClass.wardens.get(player.getName()).dealing = select;
                 FormMain.showWardenBugReport(player, select);
                 break;
-            case WardenDealByPassReport:
+            case WardenDealByPassReportList:
+                text = window.getResponse().getClickedButton().getText();
+                if(text.equals("返回") || text.equals("")){
+                    FormMain.showWardenReportTypeList(player);
+                    return;
+                }
                 ByPassReport select1 = MainClass.byPassReports.get(id);
                 MainClass.wardens.get(player.getName()).dealing = select1;
                 FormMain.showWardenByPassReport(player, select1);
@@ -397,7 +402,7 @@ public class FormListener implements Listener {
                 String bypassInfo = response.getInputResponse(1);
                 String suspect = response.getInputResponse(0);
                 if(!bypassInfo.equals("") && !suspect.equals("")) {
-                    Config s1 = new Config(MainClass.path + "/bugreports/" + System.currentTimeMillis() + ".yml", Config.YAML);
+                    Config s1 = new Config(MainClass.path + "/bypassreports/" + System.currentTimeMillis() + ".yml", Config.YAML);
                     boolean bypassBoolean = response.getToggleResponse(2);
                     long millis1 = System.currentTimeMillis();
                     s1.set("player", player.getName());
@@ -409,7 +414,7 @@ public class FormListener implements Listener {
                     MainClass.byPassReports.add(newBypassReport);
                     s1.save();
                     player.sendMessage("§a感谢您的举报，我们正在全力核查中...");
-                    MainClass.log.log(Level.INFO, "["+player.getName()+"]提交bug反馈，具体内容："+ newBypassReport);
+                    MainClass.log.log(Level.INFO, "["+player.getName()+"]提交举报信息，具体内容："+ newBypassReport);
                 }else{
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
                 }

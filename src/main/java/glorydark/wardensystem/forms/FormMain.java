@@ -155,6 +155,7 @@ public class FormMain {
                     }
                 }else{
                     window.setContent("暂无需要处理的bug反馈！");
+                    window.addButton(new ElementButton("返回"));
                 }
                 FormListener.showFormWindow(player, window, FormType.WardenDealBugReportList);
                 break;
@@ -165,6 +166,7 @@ public class FormMain {
                     }
                 }else{
                     window.setContent("暂无需要处理的举报！");
+                    window.addButton(new ElementButton("返回"));
                 }
                 FormListener.showFormWindow(player, window, FormType.WardenDealByPassReportList);
                 break;
