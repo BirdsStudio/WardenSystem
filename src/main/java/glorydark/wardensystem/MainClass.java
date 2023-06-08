@@ -93,7 +93,7 @@ public class MainClass extends PluginBase {
             rewards.put(key, new Reward(rewardCfg.getSection(key)));
         }
         this.getServer().getPluginManager().registerEvents(new FormListener(), this);
-        this.getServer().getCommandMap().register("", new WardenCommand("warden"));
+        this.getServer().getCommandMap().register("", new WardenCommand(config.getString("command")));
         this.getLogger().info("WardenSystem 加载成功！");
     }
 

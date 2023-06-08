@@ -49,6 +49,16 @@ public class FormMain {
     public static void showWardenPunish(Player player){
         FormWindowCustom window = new FormWindowCustom("协管系统 - 处罚系统");
         window.addElement(new ElementInput("玩家名"));
+        List<String> onlinePlayers = new ArrayList<>();
+        for(Player p:Server.getInstance().getOnlinePlayers().values()){
+            if(p == player){
+                continue;
+            }
+            onlinePlayers.add(p.getName());
+        }
+        ElementDropdown dropdown = new ElementDropdown("选择在线玩家");
+        dropdown.getOptions().addAll(onlinePlayers);
+        window.addElement(dropdown);
         List<String> types = new ArrayList<>();
         types.add("封禁");
         types.add("禁言");
