@@ -149,14 +149,22 @@ public class FormMain {
         FormWindowSimple window = new FormWindowSimple("协管系统 - 选择反馈","请选择您要处理的反馈！");
         switch (formType){
             case WardenDealBugReportList:
-                for(Report report: MainClass.bugReports){
-                    window.addButton(new ElementButton((report.isAnonymous()? "【匿名反馈】": "【反馈者："+report.getPlayer()+"】")+"\n"+"提交时间:"+MainClass.getDate(report.getMillis())));
+                if(MainClass.bugReports.size() > 0){
+                    for(Report report: MainClass.bugReports){
+                        window.addButton(new ElementButton((report.isAnonymous()? "【匿名反馈】": "【反馈者："+report.getPlayer()+"】")+"\n"+"提交时间:"+MainClass.getDate(report.getMillis())));
+                    }
+                }else{
+                    window.setContent("暂无需要处理的bug反馈！");
                 }
                 FormListener.showFormWindow(player, window, FormType.WardenDealBugReportList);
                 break;
             case WardenDealByPassReportList:
-                for(Report report: MainClass.byPassReports){
-                    window.addButton(new ElementButton((report.isAnonymous()? "【匿名举报】": "【举报者："+report.getPlayer()+"】")+"\n"+"提交时间:"+MainClass.getDate(report.getMillis())));
+                if(MainClass.byPassReports.size() > 0) {
+                    for (Report report : MainClass.byPassReports) {
+                        window.addButton(new ElementButton((report.isAnonymous() ? "【匿名举报】" : "【举报者：" + report.getPlayer() + "】") + "\n" + "提交时间:" + MainClass.getDate(report.getMillis())));
+                    }
+                }else{
+                    window.setContent("暂无需要处理的举报！");
                 }
                 FormListener.showFormWindow(player, window, FormType.WardenDealByPassReportList);
                 break;
