@@ -21,4 +21,6 @@ public enum FormType {
     PlayerByPassReport,
     PlayerMailboxMain,
     PlayerMailboxInfo,
+    DealBugReportReturn,
+    DealByPassReportReturn
 }
