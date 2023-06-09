@@ -211,6 +211,14 @@ public class FormListener implements Listener {
                 }
                 break;
             case PlayerMailboxMain:
+                if(window.getResponse().getClickedButton().getText().equals("返回")){
+                    if(MainClass.wardens.containsKey(player.getName())) {
+                        FormMain.showWardenMain(player);
+                    }else{
+                        FormMain.showPlayerMain(player);
+                    }
+                    return;
+                }
                 FormMain.showMailDetail(player, id);
                 break;
             case PlayerMailboxInfo:

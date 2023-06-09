@@ -246,10 +246,12 @@ public class FormMain {
                 }
             }else{
                 window = new FormWindowSimple("协管系统", "暂无邮件！");
+                window.addButton(new ElementButton("返回"));
             }
             FormListener.showFormWindow(player, window, FormType.PlayerMailboxMain);
         }else{
             FormWindowSimple window = new FormWindowSimple("协管系统","暂无邮件！");
+            window.addButton(new ElementButton("返回"));
             FormListener.showFormWindow(player, window, FormType.PlayerMailboxMain);
         }
     }
