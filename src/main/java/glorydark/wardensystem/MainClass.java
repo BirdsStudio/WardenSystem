@@ -94,6 +94,7 @@ public class MainClass extends PluginBase {
         }
         this.getServer().getPluginManager().registerEvents(new FormListener(), this);
         this.getServer().getCommandMap().register("", new WardenCommand(config.getString("command")));
+        // this.getServer().getCommandMap().register("", new TestCommand("test"));
         this.getLogger().info("WardenSystem 加载成功！");
     }
 
