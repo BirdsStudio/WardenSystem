@@ -217,9 +217,13 @@ public class FormMain {
         File file = new File(MainClass.path+"/mailbox/"+player.getName()+".yml");
         if(file.exists()) {
             Config config = new Config(file, Config.YAML);
-            List<Map<String, Object>> list = (List<Map<String, Object>>) config.get("unclaimed");
-            if (list.size() > 0) {
-                window.addButton(new ElementButton("邮箱系统 [§c§l"+list.size()+"§r]"));
+            if(config.exists("unclaimed")) {
+                List<Map<String, Object>> list = (List<Map<String, Object>>) config.get("unclaimed");
+                if (list.size() > 0) {
+                    window.addButton(new ElementButton("邮箱系统 [§c§l" + list.size() + "§r]"));
+                } else {
+                    window.addButton(new ElementButton("邮箱系统 [§a§l0§r]"));
+                }
             }else{
                 window.addButton(new ElementButton("邮箱系统 [§a§l0§r]"));
             }
