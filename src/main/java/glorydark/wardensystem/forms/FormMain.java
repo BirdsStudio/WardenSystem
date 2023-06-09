@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.form.element.*;
 import cn.nukkit.form.window.FormWindowCustom;
+import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.utils.Config;
 import glorydark.wardensystem.MainClass;
@@ -105,6 +106,7 @@ public class FormMain {
                 window.addButton(new ElementButton("切换至创造模式"));
                 break;
         }
+        window.addButton(new ElementButton("返回"));
         FormListener.showFormWindow(player, window, FormType.WardenTools);
     }
 
@@ -274,6 +276,11 @@ public class FormMain {
         FormListener.showFormWindow(player, window, FormType.PlayerReportMain);
     }
 
+    public static void showReportReturnMenu(String content, Player player, FormType type){
+        FormWindowModal modal = new FormWindowModal("协管系统", content, "返回", "退出");
+        FormListener.showFormWindow(player, modal, type);
+    }
+
     public static void showReportMenu(Player player, FormType type){
         switch (type){
             case PlayerBugReport:
@@ -285,6 +292,12 @@ public class FormMain {
             case PlayerByPassReport:
                 FormWindowCustom window1 = new FormWindowCustom("协管系统 - 举报");
                 window1.addElement(new ElementInput("举报玩家名"));
+                List<String> strings = new ArrayList<>();
+                strings.add("- 未选择 -");
+                Server.getInstance().getOnlinePlayers().values().forEach(player1 -> strings.add(player1.getName()));
+                ElementDropdown dropdown = new ElementDropdown("选择在线玩家");
+                dropdown.getOptions().addAll(strings);
+                window1.addElement(dropdown);
                 window1.addElement(new ElementInput("简述举报内容"));
                 window1.addElement(new ElementToggle("是否匿名"));
                 FormListener.showFormWindow(player, window1, FormType.PlayerByPassReport);

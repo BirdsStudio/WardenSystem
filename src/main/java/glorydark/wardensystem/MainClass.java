@@ -48,7 +48,7 @@ public class MainClass extends PluginBase {
     @Override
     public void onEnable() {
         path = this.getDataFolder().getPath();
-        log = Logger.getLogger("WardenSystem");
+        log = Logger.getLogger("WardenSystem_"+ UUID.randomUUID());
         new File(path+"/logs/").mkdirs();
         FileHandler fileHandler;
         try {
@@ -130,9 +130,9 @@ public class MainClass extends PluginBase {
                     FormMain.showPlayerMain((Player) commandSender);
                 }
             }else{
-                if(strings.length < 2){ return true; }
                 switch (strings[0]){
                     case "add":
+                        if(strings.length < 2){ return true; }
                         Config config = new Config(path+"/config.yml", Config.YAML);
                         List<String> wardens = new ArrayList<>(config.getStringList("wardens"));
                         if(wardens.contains(strings[1])){
@@ -147,6 +147,7 @@ public class MainClass extends PluginBase {
                         }
                         break;
                     case "remove":
+                        if(strings.length < 2){ return true; }
                         Config config1 = new Config(path+"/config.yml", Config.YAML);
                         List<String> wardens1 = new ArrayList<>(config1.getStringList("wardens"));
                         if(wardens1.contains(strings[1])){
@@ -161,6 +162,7 @@ public class MainClass extends PluginBase {
                         }
                         break;
                     case "ban":
+                        if(strings.length < 2){ return true; }
                         Config banCfg = new Config(path+"/ban.yml", Config.YAML);
                         List<String> banned = new ArrayList<>(banCfg.getKeys(false));
                         if(banned.contains(strings[1])){
@@ -184,6 +186,7 @@ public class MainClass extends PluginBase {
                         }
                         break;
                     case "unban":
+                        if(strings.length < 2){ return true; }
                         Config banCfg1 = new Config(path+"/ban.yml", Config.YAML);
                         List<String> banned1 = new ArrayList<>(banCfg1.getKeys(false));
                         if(banned1.contains(strings[1])){
@@ -196,6 +199,7 @@ public class MainClass extends PluginBase {
                         }
                         break;
                     case "mute":
+                        if(strings.length < 2){ return true; }
                         Config muteCfg = new Config(path+"/mute.yml", Config.YAML);
                         List<String> muted = new ArrayList<>(muteCfg.getKeys(false));
                         if(muted.contains(strings[1])){
@@ -219,6 +223,7 @@ public class MainClass extends PluginBase {
                         }
                         break;
                     case "unmute":
+                        if(strings.length < 2){ return true; }
                         Config muteCfg1 = new Config(path+"/mute.yml", Config.YAML);
                         List<String> muted1 = new ArrayList<>(muteCfg1.getKeys(false));
                         if(muted1.contains(strings[1])){
@@ -232,6 +237,7 @@ public class MainClass extends PluginBase {
                         }
                         break;
                     case "warn":
+                        if(strings.length < 2){ return true; }
                         Player to = Server.getInstance().getPlayer(strings[1]);
                         if(to != null){
                             to.sendMessage("§c您已被警告，请规范您的游戏行为！");
@@ -242,6 +248,7 @@ public class MainClass extends PluginBase {
                         }
                         break;
                     case "kick":
+                        if(strings.length < 2){ return true; }
                         Player kicked = Server.getInstance().getPlayer(strings[1]);
                         if(kicked != null){
                             kicked.kick("§c您已被踢出，请规范您的游戏行为！");
@@ -249,6 +256,24 @@ public class MainClass extends PluginBase {
                             log.log(Level.INFO, "CONSOLE执行：/warden kick "+strings[1]);
                         }else{
                             commandSender.sendMessage("§c该玩家不存在！");
+                        }
+                        break;
+                    case "list":
+                        if(MainClass.bugReports.size() > 0) {
+                            commandSender.sendMessage("bug反馈：");
+                            for (BugReport report : MainClass.bugReports) {
+                                commandSender.sendMessage("- 反馈玩家：" + report.getPlayer() + "，反馈内容：" + report.getInfo() + "，日期：" + MainClass.getDate(report.getMillis()) + "，毫秒数：" + report.millis);
+                            }
+                        }else{
+                            commandSender.sendMessage("暂无未处理的bug反馈！");
+                        }
+                        if(MainClass.byPassReports.size() > 0) {
+                            commandSender.sendMessage("bypass反馈：");
+                            for (ByPassReport report : MainClass.byPassReports) {
+                                commandSender.sendMessage("- 反馈玩家：" + report.getPlayer() + "，被举报玩家，" + report.getSuspect() + "，反馈内容：" + report.getInfo() + "，日期：" + MainClass.getDate(report.getMillis()) + "，毫秒数：" + report.millis);
+                            }
+                        }else{
+                            commandSender.sendMessage("暂无未处理的bug反馈！");
                         }
                         break;
                 }
