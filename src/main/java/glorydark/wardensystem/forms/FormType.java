@@ -10,6 +10,8 @@ public enum FormType {
     WardenPersonalInfo,
     WardenMailBox,
     WardenPunish,
+
+    WardenPunishType,
     WardenTools,
     WardenTeleportTools,
     WardenPardon,

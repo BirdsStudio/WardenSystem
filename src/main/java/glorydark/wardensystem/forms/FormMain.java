@@ -9,9 +9,9 @@ import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.utils.Config;
 import glorydark.wardensystem.MainClass;
-import glorydark.wardensystem.OfflineData;
-import glorydark.wardensystem.PlayerData;
-import glorydark.wardensystem.reports.WardenData;
+import glorydark.wardensystem.data.OfflineData;
+import glorydark.wardensystem.data.PlayerData;
+import glorydark.wardensystem.data.WardenData;
 import glorydark.wardensystem.reports.matters.BugReport;
 import glorydark.wardensystem.reports.matters.ByPassReport;
 import glorydark.wardensystem.reports.matters.Report;
@@ -31,7 +31,6 @@ public class FormMain {
         FormWindowSimple window = new FormWindowSimple("协管系统","您好，【协管员】"+player.getName()+"！");
         window.addButton(new ElementButton("处理事务"));
         window.addButton(new ElementButton("处罚系统"));
-        window.addButton(new ElementButton("解除处罚"));
         File file = new File(MainClass.path+"/mailbox/"+player.getName()+".yml");
         if(file.exists()) {
             Config config = new Config(file, Config.YAML);
@@ -44,12 +43,19 @@ public class FormMain {
         }else{
             window.addButton(new ElementButton("邮箱系统 [§a§l0§r]"));
         }
-        window.addButton(new ElementButton("个人中心"));
-        window.addButton(new ElementButton("实用工具"));
         window.addButton(new ElementButton("举报/反馈bug"));
-        window.addButton(new ElementButton("查询最近数据"));
-        window.addButton(new ElementButton("查询玩家状态"));
+        window.addButton(new ElementButton("实用工具"));
+        window.addButton(new ElementButton("个人中心"));
         Listener.showFormWindow(player, window, FormType.WardenMain);
+    }
+
+    public static void showWardenPunishType(Player player){
+        FormWindowSimple simple = new FormWindowSimple("处罚系统", "选择您要进行的操作吧！");
+        simple.addButton(new ElementButton("实施处罚"));
+        simple.addButton(new ElementButton("解除处罚"));
+        simple.addButton(new ElementButton("查询玩家状态"));
+        simple.addButton(new ElementButton("返回"));
+        Listener.showFormWindow(player, simple, FormType.WardenPunishType);
     }
 
     public static void showWardenPunish(Player player, String... params){
@@ -64,9 +70,13 @@ public class FormMain {
             if(p == player){
                 continue;
             }
-            onlinePlayers.add(p.getName());
+            if(MainClass.wardens.containsKey(p.getName())){
+                onlinePlayers.add("§6"+p.getName());
+            }else{
+                onlinePlayers.add(p.getName());
+            }
         }
-        ElementDropdown dropdown = new ElementDropdown("选择在线玩家");
+        ElementDropdown dropdown = new ElementDropdown("选择在线玩家（橙色为协管）");
         dropdown.addOption("- 未选择 -");
         dropdown.getOptions().addAll(onlinePlayers);
         window.addElement(dropdown);
@@ -75,10 +85,11 @@ public class FormMain {
         types.add("禁言");
         types.add("警告");
         types.add("踢出");
+        types.add("添加至怀疑玩家");
         window.addElement(new ElementDropdown("处罚类型", types));
         window.addElement(new ElementToggle("是否永久"));
         window.addElement(new ElementSlider("年", 0, 30, 1));
-        window.addElement(new ElementSlider("月", 0, 12, 1, 1));
+        window.addElement(new ElementSlider("月", 0, 12, 1));
         window.addElement(new ElementSlider("天", 0, 30, 1));
         window.addElement(new ElementSlider("时", 0, 24, 1));
         window.addElement(new ElementSlider("分", 0, 60, 1));
@@ -113,6 +124,7 @@ public class FormMain {
                 break;
         }
         window.addButton(new ElementButton(player.getAdventureSettings().get(AdventureSettings.Type.FLYING)? "关闭飞行":"开启飞行"));
+        window.addButton(new ElementButton("查询最近数据"));
         window.addButton(new ElementButton("返回"));
         Listener.showFormWindow(player, window, FormType.WardenTools);
     }
@@ -243,12 +255,14 @@ public class FormMain {
             List<Map<String, Object>> list = config.get("unclaimed", new ArrayList<>());
             FormWindowSimple window;
             if(list.size() > 0){
-                window = new FormWindowSimple("协管系统", "请选择您要查收的邮件！");
+                window = new FormWindowSimple("协管系统 - 邮箱系统", "请选择您要查收的邮件！");
+                window.addButton(new ElementButton("一键已读"));
                 for(Map<String, Object> map: list){
                     window.addButton(new ElementButton("标题：" + map.getOrDefault("title", "无标题")+"\n发信人："+map.getOrDefault("sender", "undefined")));
                 }
+                window.addButton(new ElementButton("返回"));
             }else{
-                window = new FormWindowSimple("协管系统", "暂无邮件！");
+                window = new FormWindowSimple("协管系统 - 邮箱系统", "暂无邮件！");
                 window.addButton(new ElementButton("返回"));
             }
             Listener.showFormWindow(player, window, FormType.PlayerMailboxMain);

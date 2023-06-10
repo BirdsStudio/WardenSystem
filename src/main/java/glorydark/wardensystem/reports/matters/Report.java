@@ -8,4 +8,5 @@ public interface Report {
     String getPlayer();
 
     long getMillis();
+
 }

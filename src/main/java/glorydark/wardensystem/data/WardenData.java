@@ -1,4 +1,4 @@
-package glorydark.wardensystem.reports;
+package glorydark.wardensystem.data;
 
 import cn.nukkit.utils.Config;
 import glorydark.wardensystem.MainClass;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class WardenData{
+public class WardenData {
 
     public Report dealing; //处理事务类型
 
@@ -27,6 +27,8 @@ public class WardenData{
 
     public String joinTime;
 
+    public WardenLevelType levelType;
+
     public WardenData(Report dealing, Config config){
         this.dealing = dealing;
         this.config = config;
@@ -38,13 +40,25 @@ public class WardenData{
         this.joinTime = MainClass.getDate(config.getLong("join_time"));
     }
 
-    public void saveDefault(){
-        config.set("prefixes", new ArrayList<>());
-        config.set("accumulated_times", 0);
-        config.set("vetoed_times", 0);
-        config.set("all_grades_from_players", 5);
-        config.set("grade_player_counts", 0);
-        config.set("join_time", 0);
+    public void fixConfig(){
+        if(!config.exists("prefixes")){
+            config.set("prefixes", new ArrayList<>());
+        }
+        if(!config.exists("accumulated_times")){
+            config.set("accumulated_times", 0);
+        }
+        if(!config.exists("vetoed_times")){
+            config.set("vetoed_times", 0);
+        }
+        if(!config.exists("all_grades_from_players")){
+            config.set("all_grades_from_players", 5);
+        }
+        if(!config.exists("grade_player_counts")){
+            config.set("grade_player_counts", 0);
+        }
+        if(!config.exists("join_time")){
+            config.set("join_time", System.currentTimeMillis());
+        }
     }
 
     public void addAccumulatedTimes() {
@@ -60,6 +74,20 @@ public class WardenData{
     public void addGradesFromPlayers(int grade) {
         config.set("all_grades_from_players", config.getInt("all_grades_from_players", 0) + grade);
         config.set("grade_player_counts", config.getInt("grade_player_counts", 0) + 1);
+        config.save();
+    }
+
+    public void addPrefix(String string){
+        List<String> prefixes = new ArrayList<>(config.getStringList("prefixes"));
+        prefixes.add(string);
+        config.set("prefixes", prefixes);
+        config.save();
+    }
+
+    public void removePrefix(String string){
+        List<String> prefixes = new ArrayList<>(config.getStringList("prefixes"));
+        prefixes.remove(string);
+        config.set("prefixes", prefixes);
         config.save();
     }
 }

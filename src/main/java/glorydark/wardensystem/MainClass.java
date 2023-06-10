@@ -8,9 +8,9 @@ import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
+import glorydark.wardensystem.data.*;
 import glorydark.wardensystem.forms.Listener;
 import glorydark.wardensystem.forms.FormMain;
-import glorydark.wardensystem.reports.WardenData;
 import glorydark.wardensystem.reports.matters.BugReport;
 import glorydark.wardensystem.reports.matters.ByPassReport;
 import glorydark.wardensystem.reports.matters.Reward;
@@ -38,6 +38,8 @@ public class MainClass extends PluginBase {
     public static HashMap<String, Reward> rewards = new HashMap<>();
 
     public static List<String> muted = new ArrayList<>();
+
+    public static HashMap<String, SuspectData> suspectList = new HashMap<>();
 
     public static Logger log;
 
@@ -70,8 +72,17 @@ public class MainClass extends PluginBase {
         this.saveResource("config.yml", false);
         this.saveResource("rewards.yml", false);
         Config config = new Config(path+"/config.yml", Config.YAML);
+        for(String player: new ArrayList<>(config.getStringList("admins"))){
+            WardenData data = new WardenData(null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
+            data.setLevelType(WardenLevelType.ADMIN);
+            data.fixConfig();
+            wardens.put(player, data);
+        }
         for(String player: new ArrayList<>(config.getStringList("wardens"))){
-            wardens.put(player, new WardenData(null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML)));
+            WardenData data = new WardenData(null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
+            data.setLevelType(WardenLevelType.NORMAL);
+            data.fixConfig();
+            wardens.put(player, data);
         }
         for(File file: Objects.requireNonNull(new File(path + "/bugreports/").listFiles())){
             if(file.isDirectory()){
@@ -92,6 +103,10 @@ public class MainClass extends PluginBase {
             byPassReports.add(report);
         }
         muted.addAll(new ArrayList<>(new Config(path + "/mute.yml", Config.YAML).getKeys(false)));
+        Config suspects = new Config(path+"/suspects.yml", Config.YAML);
+        for(String s: suspects.getKeys(false)){
+            suspectList.put(s, new SuspectData(s, suspects.getLong(s +".start"), suspects.getLong(s +".end")));
+        }
         Config rewardCfg = new Config(path+"/rewards.yml", Config.YAML);
         rewards.put("无奖励", new Reward(new ConfigSection()));
         for(String key: rewardCfg.getKeys(false)){
@@ -152,7 +167,9 @@ public class MainClass extends PluginBase {
                             wardens.add(strings[1]);
                             config.set("wardens", wardens);
                             config.save();
-                            MainClass.wardens.put(strings[1], new WardenData(null, new Config(path+"/"+strings[1]+".yml")));
+                            WardenData data = new WardenData(null, new Config(path+"/"+strings[1]+".yml"));
+                            data.fixConfig();
+                            MainClass.wardens.put(strings[1], data);
                             commandSender.sendMessage("§a成功为玩家【"+strings[1]+"】赋予协管权限！");
                             log.log(Level.INFO, "CONSOLE执行：/warden add "+strings[1]);
                         }

@@ -14,9 +14,10 @@ import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.utils.Config;
 import glorydark.wardensystem.MainClass;
-import glorydark.wardensystem.OfflineData;
-import glorydark.wardensystem.PlayerData;
-import glorydark.wardensystem.reports.WardenData;
+import glorydark.wardensystem.data.OfflineData;
+import glorydark.wardensystem.data.PlayerData;
+import glorydark.wardensystem.data.SuspectData;
+import glorydark.wardensystem.data.WardenData;
 import glorydark.wardensystem.reports.matters.BugReport;
 import glorydark.wardensystem.reports.matters.ByPassReport;
 
@@ -73,6 +74,19 @@ public class Listener implements cn.nukkit.event.Listener {
             }else{
                 player.sendMessage("§a目前暂无未处理的举报消息！");
             }
+            if(MainClass.suspectList.size() > 0){
+                List<String> suspectOnlineList = new ArrayList<>();
+                for(String s: MainClass.suspectList.keySet()){
+                    Player p = Server.getInstance().getPlayer(s);
+                    if(p != null){
+                        suspectOnlineList.add(p.getName());
+                    }
+                }
+                player.sendMessage("现在在线的嫌疑玩家："+ Arrays.toString(suspectOnlineList.toArray()));
+            }
+        }
+        if(MainClass.suspectList.containsKey(player.getName())){
+            player.sendMessage("§c您已被列为嫌疑玩家，请端正游戏行为！");
         }
         File file = new File(MainClass.path+"/mailbox/"+player.getName()+".yml");
         if(file.exists()) {
@@ -127,7 +141,12 @@ public class Listener implements cn.nukkit.event.Listener {
         }
     }
     private void formWindowSimpleOnClick(Player player, FormWindowSimple window, FormType guiType) {
-        if(window.getResponse() == null){ return; }
+        if(window.getResponse() == null){
+            if(MainClass.wardens.containsKey(player.getName())){
+                MainClass.wardens.get(player.getName()).setDealing(null);
+            }
+            return;
+        }
         int id = window.getResponse().getClickedButtonId();
         switch (guiType){
             case WardenMain:
@@ -136,28 +155,19 @@ public class Listener implements cn.nukkit.event.Listener {
                         FormMain.showWardenReportTypeList(player);
                         break;
                     case 1:
-                        FormMain.showWardenPunish(player);
+                        FormMain.showWardenPunishType(player);
                         break;
                     case 2:
-                        FormMain.showWardenPardon(player);
-                        break;
-                    case 3:
                         FormMain.showMailBoxMain(player);
                         break;
-                    case 4:
-                        FormMain.showWardenProfile(player);
-                        break;
-                    case 5:
-                        FormMain.showUsefulTools(player);
-                        break;
-                    case 6:
+                    case 3:
                         FormMain.showReportTypeMenu(player);
                         break;
-                    case 7:
-                        FormMain.showRecentProfile(player);
+                    case 4:
+                        FormMain.showUsefulTools(player);
                         break;
-                    case 8:
-                        FormMain.showCheckPlayerDetails(player);
+                    case 5:
+                        FormMain.showWardenProfile(player);
                         break;
                 }
                 break;
@@ -200,7 +210,10 @@ public class Listener implements cn.nukkit.event.Listener {
                         }
                         break;
                     case 4:
-                        FormMain.showUsefulTools(player);
+                        FormMain.showRecentProfile(player);
+                        break;
+                    case 5:
+                        FormMain.showWardenMain(player);
                         break;
                 }
                 break;
@@ -211,6 +224,10 @@ public class Listener implements cn.nukkit.event.Listener {
                     return;
                 }
                 BugReport select = MainClass.bugReports.get(id);
+                if(MainClass.wardens.values().stream().anyMatch(wardenData -> wardenData.getDealing() == select)){
+                    FormMain.showReportReturnMenu("该bug反馈已有人在处理！", player, FormType.DealBugReportReturn);
+                    return;
+                }
                 MainClass.wardens.get(player.getName()).dealing = select;
                 FormMain.showWardenBugReport(player, select);
                 break;
@@ -221,6 +238,10 @@ public class Listener implements cn.nukkit.event.Listener {
                     return;
                 }
                 ByPassReport select1 = MainClass.byPassReports.get(id);
+                if(MainClass.wardens.values().stream().anyMatch(wardenData -> wardenData.getDealing() == select1)){
+                    FormMain.showReportReturnMenu("该举报已有人在处理！", player, FormType.DealByPassReportReturn);
+                    return;
+                }
                 MainClass.wardens.get(player.getName()).dealing = select1;
                 FormMain.showWardenByPassReport(player, select1);
                 break;
@@ -266,15 +287,37 @@ public class Listener implements cn.nukkit.event.Listener {
                 }
                 break;
             case PlayerMailboxMain:
-                if(window.getResponse().getClickedButton().getText().equals("返回")){
-                    if(MainClass.wardens.containsKey(player.getName())) {
-                        FormMain.showWardenMain(player);
-                    }else{
-                        FormMain.showPlayerMain(player);
-                    }
-                    return;
+                switch (window.getResponse().getClickedButton().getText()){
+                    case "返回":
+                        if(MainClass.wardens.containsKey(player.getName())) {
+                            FormMain.showWardenMain(player);
+                        }else{
+                            FormMain.showPlayerMain(player);
+                        }
+                        return;
+                    case "一键已读":
+                        Config mailInfoConfig = new Config(MainClass.path+"/mailbox/"+player.getName()+".yml", Config.YAML);
+                        List<Map<String, Object>> list = (List<Map<String, Object>>) mailInfoConfig.get("unclaimed");
+                        List<Map<String, Object>> claimed = new ArrayList<>(mailInfoConfig.get("claimed", new ArrayList<>()));
+                        int i = 0;
+                        for(Map<String, Object> map : list) {
+                            for (String message : new ArrayList<>((List<String>) map.getOrDefault("messages", new ArrayList<>()))) {
+                                player.sendMessage(message.replace("{player}", player.getName()));
+                            }
+
+                            for (String command : new ArrayList<>((List<String>) map.getOrDefault("commands", new ArrayList<>()))) {
+                                Server.getInstance().dispatchCommand(new ConsoleCommandSender(), command.replace("{player}", player.getName()));
+                            }
+                            claimed.add(list.get(i));
+                            i++;
+                        }
+                        mailInfoConfig.set("unclaimed", new ArrayList<>());
+                        mailInfoConfig.set("claimed", claimed);
+                        mailInfoConfig.save();
+                        player.sendMessage("§a您已一键已读且领取所有邮件！");
+                        return;
                 }
-                FormMain.showMailDetail(player, id);
+                FormMain.showMailDetail(player, id - 1);
                 break;
             case PlayerMailboxInfo:
                 switch (id){
@@ -321,6 +364,22 @@ public class Listener implements cn.nukkit.event.Listener {
                 break;
             case RecentProfile:
                 Server.getInstance().dispatchCommand(player, "r");
+                break;
+            case WardenPunishType:
+                switch (id){
+                    case 0:
+                        FormMain.showWardenPunish(player);
+                        break;
+                    case 1:
+                        FormMain.showWardenPardon(player);
+                        break;
+                    case 2:
+                        FormMain.showCheckPlayerDetails(player);
+                        break;
+                    case 3:
+                        FormMain.showWardenMain(player);
+                        break;
+                }
                 break;
         }
     }
@@ -475,6 +534,12 @@ public class Listener implements cn.nukkit.event.Listener {
                     BugReport newBugReport = new BugReport(bugInfo, player.getName(), millis, bugBoolean);
                     MainClass.bugReports.add(newBugReport);
                     player.sendMessage("§a感谢您的反馈，我们正在全力核查中...");
+                    MainClass.wardens.forEach((s, wardenData) -> {
+                        Player p = Server.getInstance().getPlayer(s);
+                        if(p != null){
+                            p.sendMessage("§a您有新的bug反馈需处理！");
+                        }
+                    });
                     MainClass.log.log(Level.INFO, "["+player.getName()+"]提交bug反馈，具体内容："+ newBugReport);
                 }else{
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
@@ -504,6 +569,12 @@ public class Listener implements cn.nukkit.event.Listener {
                     MainClass.byPassReports.add(newBypassReport);
                     s1.save();
                     player.sendMessage("§a感谢您的举报，我们正在全力核查中...");
+                    MainClass.wardens.forEach((s, wardenData) -> {
+                        Player p = Server.getInstance().getPlayer(s);
+                        if(p != null){
+                            p.sendMessage("§a您有新的举报信息需处理！");
+                        }
+                    });
                     MainClass.log.log(Level.INFO, "["+player.getName()+"]提交举报信息，具体内容："+ newBypassReport);
                 }else{
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
@@ -558,7 +629,7 @@ public class Listener implements cn.nukkit.event.Listener {
                 }
                 String punishedPn;
                 if(response.getResponse(0) != null && response.getInputResponse(0).equals("")){
-                    punishedPn = response.getDropdownResponse(1).getElementContent();
+                    punishedPn = response.getDropdownResponse(1).getElementContent().replace("§6", "");
                 }else{
                     punishedPn = response.getInputResponse(0);
                 }
@@ -639,6 +710,21 @@ public class Listener implements cn.nukkit.event.Listener {
                             MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用警告功能，警告玩家"+punishedPn+"！");
                         }else{
                             player.sendMessage("§c该玩家不在线或不存在！");
+                        }
+                        break;
+                    case 4:
+                        config = new Config(MainClass.path + "/suspects.yml", Config.YAML);
+                        MainClass.log.log(Level.INFO, "["+player.getName()+"]成功添加嫌疑玩家["+punishedPn+"]");
+                        if(punished != null){
+                            Calendar calendar = new Calendar.Builder().setInstant(System.currentTimeMillis()).build();
+                            calendar.add(Calendar.DATE, 7);
+                            config.set(punishedPn+".start", System.currentTimeMillis());
+                            config.set(punishedPn+".end", calendar.getTimeInMillis());
+                            MainClass.suspectList.put(punishedPn, new SuspectData(punishedPn, System.currentTimeMillis(), calendar.getTimeInMillis()));
+                            config.set(punishedPn+".operator", player.getName());
+                            config.set(punishedPn+".reason", response.getInputResponse(10));
+                            config.save();
+                            punished.sendMessage("您已被列入嫌疑玩家，请端正您的游戏行为。");
                         }
                         break;
                 }

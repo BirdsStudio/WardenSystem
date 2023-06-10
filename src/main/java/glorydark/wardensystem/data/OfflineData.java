@@ -1,4 +1,4 @@
-package glorydark.wardensystem;
+package glorydark.wardensystem.data;
 
 import cn.nukkit.Player;
 import lombok.Data;

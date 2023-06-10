@@ -1,3 +1,5 @@
 command: "r"
+admins:
+  - "OrthoRelic17176"
 wardens:
   - "BizarreDark"
