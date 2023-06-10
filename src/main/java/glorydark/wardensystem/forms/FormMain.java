@@ -12,6 +12,7 @@ import glorydark.wardensystem.MainClass;
 import glorydark.wardensystem.data.OfflineData;
 import glorydark.wardensystem.data.PlayerData;
 import glorydark.wardensystem.data.WardenData;
+import glorydark.wardensystem.data.WardenLevelType;
 import glorydark.wardensystem.reports.matters.BugReport;
 import glorydark.wardensystem.reports.matters.ByPassReport;
 import glorydark.wardensystem.reports.matters.Report;
@@ -28,7 +29,11 @@ import java.util.Map;
 public class FormMain {
 
     public static void showWardenMain(Player player){
-        FormWindowSimple window = new FormWindowSimple("协管系统","您好，【协管员】"+player.getName()+"！");
+        WardenData data = MainClass.wardens.get(player.getName());
+        if(data == null){
+            return;
+        }
+        FormWindowSimple window = new FormWindowSimple("协管系统","您好，【"+(data.getLevelType()==WardenLevelType.ADMIN? "协管主管": "协管员")+"】"+player.getName()+"！");
         window.addButton(new ElementButton("处理事务"));
         window.addButton(new ElementButton("处罚系统"));
         File file = new File(MainClass.path+"/mailbox/"+player.getName()+".yml");
@@ -46,7 +51,36 @@ public class FormMain {
         window.addButton(new ElementButton("举报/反馈bug"));
         window.addButton(new ElementButton("实用工具"));
         window.addButton(new ElementButton("个人中心"));
+        if(data.getLevelType() == WardenLevelType.ADMIN){
+            window.addButton(new ElementButton("管理协管"));
+        }
         Listener.showFormWindow(player, window, FormType.WardenMain);
+    }
+
+    public static void showAdminManage(Player player){
+        FormWindowSimple simple = new FormWindowSimple("管理系统", "选择您要进行的操作吧！");
+        simple.addButton(new ElementButton("添加协管"));
+        simple.addButton(new ElementButton("删除协管"));
+        simple.addButton(new ElementButton("返回"));
+        Listener.showFormWindow(player, simple, FormType.AdminManageType);
+    }
+
+    public static void showAddWarden(Player player){
+        FormWindowCustom window = new FormWindowCustom("管理系统 - 添加协管");
+        window.addElement(new ElementInput("玩家名"));
+        Listener.showFormWindow(player, window, FormType.AdminAddWarden);
+    }
+
+    public static void showRemoveWarden(Player player){
+        FormWindowCustom window = new FormWindowCustom("管理系统 - 删除协管");
+        ElementDropdown dropdown = new ElementDropdown("协管列表");
+        dropdown.addOption("- 未选择 -");
+        for(Map.Entry<String, WardenData> entry: MainClass.wardens.entrySet()){
+            if(entry.getValue().getLevelType() != WardenLevelType.ADMIN){
+                dropdown.addOption(entry.getKey());
+            }
+        }
+        Listener.showFormWindow(player, window, FormType.AdminRemoveWarden);
     }
 
     public static void showWardenPunishType(Player player){
@@ -71,7 +105,12 @@ public class FormMain {
                 continue;
             }
             if(MainClass.wardens.containsKey(p.getName())){
-                onlinePlayers.add("§6"+p.getName());
+                WardenData data = MainClass.wardens.get(p.getName());
+                if(data.getLevelType() == WardenLevelType.ADMIN){
+                    onlinePlayers.add("§6"+p.getName());
+                }else{
+                    onlinePlayers.add("§e"+p.getName());
+                }
             }else{
                 onlinePlayers.add(p.getName());
             }

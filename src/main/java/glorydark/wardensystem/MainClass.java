@@ -79,6 +79,9 @@ public class MainClass extends PluginBase {
             wardens.put(player, data);
         }
         for(String player: new ArrayList<>(config.getStringList("wardens"))){
+            if(wardens.containsKey(player)){
+                continue;
+            }
             WardenData data = new WardenData(null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
             data.setLevelType(WardenLevelType.NORMAL);
             data.fixConfig();
@@ -157,17 +160,33 @@ public class MainClass extends PluginBase {
                 }
             }else{
                 switch (strings[0]){
-                    case "add":
+                    case "privilege":
                         if(strings.length < 2){ return true; }
                         Config config = new Config(path+"/config.yml", Config.YAML);
+                        List<String> admins = new ArrayList<>(config.getStringList("admins"));
+                        if(admins.contains(strings[1])){
+                            commandSender.sendMessage("§c该玩家已为协管主管！");
+                        }
                         List<String> wardens = new ArrayList<>(config.getStringList("wardens"));
+                        if(wardens.contains(strings[1])){
+                            wardens.remove(strings[1]);
+                            config.set("wardens", wardens);
+                        }
+                        admins.add(strings[1]);
+                        config.set("admins", admins);
+                        config.save();
+                        break;
+                    case "add":
+                        if(strings.length < 2){ return true; }
+                        config = new Config(path+"/config.yml", Config.YAML);
+                        wardens = new ArrayList<>(config.getStringList("wardens"));
                         if(wardens.contains(strings[1])){
                             commandSender.sendMessage("§c该玩家已为协管！");
                         }else{
                             wardens.add(strings[1]);
                             config.set("wardens", wardens);
                             config.save();
-                            WardenData data = new WardenData(null, new Config(path+"/"+strings[1]+".yml"));
+                            WardenData data = new WardenData(null, new Config(path+"/wardens/"+strings[1]+".yml", Config.YAML));
                             data.fixConfig();
                             MainClass.wardens.put(strings[1], data);
                             commandSender.sendMessage("§a成功为玩家【"+strings[1]+"】赋予协管权限！");

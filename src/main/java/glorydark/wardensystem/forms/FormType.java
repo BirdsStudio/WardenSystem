@@ -23,7 +23,11 @@ public enum FormType {
     PlayerMailboxInfo,
     DealBugReportReturn,
     DealByPassReportReturn,
-    PlayerStatusReturn,
+    WardenStatusCheckReturn,
+    WardenModifyOperatorReturn,
     RecentProfile,
-    PlayerStatus
+    PlayerStatus,
+    AdminManageType,
+    AdminAddWarden,
+    AdminRemoveWarden
 }
