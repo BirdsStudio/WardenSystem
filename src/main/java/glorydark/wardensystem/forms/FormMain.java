@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.form.element.*;
 import cn.nukkit.form.window.FormWindowCustom;
+import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.utils.Config;
 import glorydark.wardensystem.MainClass;
@@ -100,11 +101,12 @@ public class FormMain {
                 window.addButton(new ElementButton("切换至生存模式"));
                 window.addButton(new ElementButton("切换至观察者模式"));
                 break;
-            case 2:
+            case 3:
                 window.addButton(new ElementButton("切换至生存模式"));
                 window.addButton(new ElementButton("切换至创造模式"));
                 break;
         }
+        window.addButton(new ElementButton("返回"));
         FormListener.showFormWindow(player, window, FormType.WardenTools);
     }
 
@@ -149,14 +151,24 @@ public class FormMain {
         FormWindowSimple window = new FormWindowSimple("协管系统 - 选择反馈","请选择您要处理的反馈！");
         switch (formType){
             case WardenDealBugReportList:
-                for(Report report: MainClass.bugReports){
-                    window.addButton(new ElementButton((report.isAnonymous()? "【匿名反馈】": "【反馈者："+report.getPlayer()+"】")+"\n"+"提交时间:"+MainClass.getDate(report.getMillis())));
+                if(MainClass.bugReports.size() > 0){
+                    for(Report report: MainClass.bugReports){
+                        window.addButton(new ElementButton((report.isAnonymous()? "【匿名反馈】": "【反馈者："+report.getPlayer()+"】")+"\n"+"提交时间:"+MainClass.getDate(report.getMillis())));
+                    }
+                }else{
+                    window.setContent("暂无需要处理的bug反馈！");
+                    window.addButton(new ElementButton("返回"));
                 }
                 FormListener.showFormWindow(player, window, FormType.WardenDealBugReportList);
                 break;
             case WardenDealByPassReportList:
-                for(Report report: MainClass.byPassReports){
-                    window.addButton(new ElementButton((report.isAnonymous()? "【匿名举报】": "【举报者："+report.getPlayer()+"】")+"\n"+"提交时间:"+MainClass.getDate(report.getMillis())));
+                if(MainClass.byPassReports.size() > 0) {
+                    for (Report report : MainClass.byPassReports) {
+                        window.addButton(new ElementButton((report.isAnonymous() ? "【匿名举报】" : "【举报者：" + report.getPlayer() + "】") + "\n" + "提交时间:" + MainClass.getDate(report.getMillis())));
+                    }
+                }else{
+                    window.setContent("暂无需要处理的举报！");
+                    window.addButton(new ElementButton("返回"));
                 }
                 FormListener.showFormWindow(player, window, FormType.WardenDealByPassReportList);
                 break;
@@ -166,12 +178,10 @@ public class FormMain {
     public static void showSelectPlayer(Player player, FormType type){
         Collection<Player> players = Server.getInstance().getOnlinePlayers().values();
         FormWindowSimple window;
-        if(players.size() > 1){
+        if(players.size() > 0){
             window = new FormWindowSimple("协管系统 - 传送工具","请选择您要传送到的玩家！");
             for(Player p: players){
-                if(!p.equals(player)){
-                    window.addButton(new ElementButton(p.getName()));
-                }
+                window.addButton(new ElementButton(p.getName()));
             }
         }else{
             window = new FormWindowSimple("协管系统 - 传送工具","目前没有玩家在线！");
@@ -209,9 +219,13 @@ public class FormMain {
         File file = new File(MainClass.path+"/mailbox/"+player.getName()+".yml");
         if(file.exists()) {
             Config config = new Config(file, Config.YAML);
-            List<Map<String, Object>> list = (List<Map<String, Object>>) config.get("unclaimed");
-            if (list.size() > 0) {
-                window.addButton(new ElementButton("邮箱系统 [§c§l"+list.size()+"§r]"));
+            if(config.exists("unclaimed")) {
+                List<Map<String, Object>> list = (List<Map<String, Object>>) config.get("unclaimed");
+                if (list.size() > 0) {
+                    window.addButton(new ElementButton("邮箱系统 [§c§l" + list.size() + "§r]"));
+                } else {
+                    window.addButton(new ElementButton("邮箱系统 [§a§l0§r]"));
+                }
             }else{
                 window.addButton(new ElementButton("邮箱系统 [§a§l0§r]"));
             }
@@ -234,10 +248,12 @@ public class FormMain {
                 }
             }else{
                 window = new FormWindowSimple("协管系统", "暂无邮件！");
+                window.addButton(new ElementButton("返回"));
             }
             FormListener.showFormWindow(player, window, FormType.PlayerMailboxMain);
         }else{
             FormWindowSimple window = new FormWindowSimple("协管系统","暂无邮件！");
+            window.addButton(new ElementButton("返回"));
             FormListener.showFormWindow(player, window, FormType.PlayerMailboxMain);
         }
     }
@@ -260,6 +276,11 @@ public class FormMain {
         FormListener.showFormWindow(player, window, FormType.PlayerReportMain);
     }
 
+    public static void showReportReturnMenu(String content, Player player, FormType type){
+        FormWindowModal modal = new FormWindowModal("协管系统", content, "返回", "退出");
+        FormListener.showFormWindow(player, modal, type);
+    }
+
     public static void showReportMenu(Player player, FormType type){
         switch (type){
             case PlayerBugReport:
@@ -271,6 +292,12 @@ public class FormMain {
             case PlayerByPassReport:
                 FormWindowCustom window1 = new FormWindowCustom("协管系统 - 举报");
                 window1.addElement(new ElementInput("举报玩家名"));
+                List<String> strings = new ArrayList<>();
+                strings.add("- 未选择 -");
+                Server.getInstance().getOnlinePlayers().values().forEach(player1 -> strings.add(player1.getName()));
+                ElementDropdown dropdown = new ElementDropdown("选择在线玩家");
+                dropdown.getOptions().addAll(strings);
+                window1.addElement(dropdown);
                 window1.addElement(new ElementInput("简述举报内容"));
                 window1.addElement(new ElementToggle("是否匿名"));
                 FormListener.showFormWindow(player, window1, FormType.PlayerByPassReport);

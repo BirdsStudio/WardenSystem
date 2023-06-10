@@ -53,6 +53,14 @@ public class FormListener implements Listener {
                 player.sendMessage("§a目前暂无未处理的举报消息！");
             }
         }
+        File file = new File(MainClass.path+"/mailbox/"+player.getName()+".yml");
+        if(file.exists()) {
+            Config config = new Config(file, Config.YAML);
+            List<Map<String, Object>> list = config.get("unclaimed", new ArrayList<>());
+            player.sendMessage("§e目前有【§c"+list.size()+"§e】个未读邮件！");
+        }else{
+            player.sendMessage("§a目前暂无未读邮件！");
+        }
     }
 
     @EventHandler
@@ -128,16 +136,16 @@ public class FormListener implements Listener {
                 break;
             case WardenTools:
                 switch (id){
-                    case 1:
+                    case 0:
                         FormMain.showSelectPlayer(player, FormType.WardenTeleportTools);
                         break;
-                    case 2:
+                    case 1:
                         player.getInventory().clearAll();
                         player.sendMessage("§a您的背包已清空！");
                         MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用清空背包功能！");
                         break;
+                    case 2:
                     case 3:
-                    case 4:
                         switch (window.getResponse().getClickedButton().getText()){
                             case "切换至生存模式":
                                 player.setGamemode(0);
@@ -150,14 +158,27 @@ public class FormListener implements Listener {
                                 break;
                         }
                         break;
+                    case 4:
+                        FormMain.showUsefulTools(player);
+                        break;
                 }
                 break;
             case WardenDealBugReportList:
+                String text = window.getResponse().getClickedButton().getText();
+                if(text.equals("返回") || text.equals("")){
+                    FormMain.showWardenReportTypeList(player);
+                    return;
+                }
                 BugReport select = MainClass.bugReports.get(id);
                 MainClass.wardens.get(player.getName()).dealing = select;
                 FormMain.showWardenBugReport(player, select);
                 break;
-            case WardenDealByPassReport:
+            case WardenDealByPassReportList:
+                text = window.getResponse().getClickedButton().getText();
+                if(text.equals("返回") || text.equals("")){
+                    FormMain.showWardenReportTypeList(player);
+                    return;
+                }
                 ByPassReport select1 = MainClass.byPassReports.get(id);
                 MainClass.wardens.get(player.getName()).dealing = select1;
                 FormMain.showWardenByPassReport(player, select1);
@@ -201,6 +222,14 @@ public class FormListener implements Listener {
                 }
                 break;
             case PlayerMailboxMain:
+                if(window.getResponse().getClickedButton().getText().equals("返回")){
+                    if(MainClass.wardens.containsKey(player.getName())) {
+                        FormMain.showWardenMain(player);
+                    }else{
+                        FormMain.showPlayerMain(player);
+                    }
+                    return;
+                }
                 FormMain.showMailDetail(player, id);
                 break;
             case PlayerMailboxInfo:
@@ -250,10 +279,13 @@ public class FormListener implements Listener {
     }
 
     private void formWindowCustomOnClick(Player player, FormWindowCustom window, FormType guiType) {
-        if(window.getResponse() == null){ return; }
         FormResponseCustom response = window.getResponse();
         switch (guiType){
             case WardenDealBugReport:
+                if(response == null){
+                    FormMain.showWardenReportList(player, FormType.WardenDealBugReportList);
+                    return;
+                }
                 BugReport bugReport = (BugReport) MainClass.wardens.get(player.getName()).dealing;
                 File bugFile = new File(MainClass.path+"/bugreports/"+bugReport.getMillis()+".yml");
                 String saveName = MainClass.getUltraPrecisionDate(System.currentTimeMillis());
@@ -297,10 +329,15 @@ public class FormListener implements Listener {
                 bugConfig.save();
                 bugFile.delete();
                 MainClass.bugReports.remove(bugReport);
-                player.sendMessage("§a处理完成，已经将您的处理结果保存至后台！");
+                FormMain.showReportReturnMenu("处理成功", player, FormType.DealBugReportReturn);
+                MainClass.wardens.get(player.getName()).addAccumulatedTimes();
                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理bug反馈完毕，具体信息详见：bugreports/"+saveName+".yml");
                 break;
             case WardenDealByPassReport:
+                if(response == null){
+                    FormMain.showWardenReportList(player, FormType.WardenDealByPassReportList);
+                    return;
+                }
                 ByPassReport byPassReport = (ByPassReport) MainClass.wardens.get(player.getName()).dealing;
                 File bypassFile = new File(MainClass.path+"/bypassreports/"+byPassReport.getMillis()+".yml");
                 String saveName1 = MainClass.getUltraPrecisionDate(System.currentTimeMillis());
@@ -345,10 +382,14 @@ public class FormListener implements Listener {
                 bypassConfig.save();
                 bypassFile.delete();
                 MainClass.byPassReports.remove(byPassReport);
-                player.sendMessage("§a处理完成，已经将您的处理结果保存至后台！");
+                FormMain.showReportReturnMenu("处理成功", player, FormType.DealByPassReportReturn);
+                MainClass.wardens.get(player.getName()).addAccumulatedTimes();
                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理bug反馈完毕，具体信息详见：bypassreports/"+saveName1+".yml");
                 break;
             case WardenPersonalInfo:
+                if(response == null){
+                    return;
+                }
                 WardenData data = MainClass.wardens.get(player.getName());
                 List<String> old = data.getPrefixes();
                 if(old.size() > 1){
@@ -370,6 +411,9 @@ public class FormListener implements Listener {
                 }
                 break;
             case PlayerBugReport:
+                if(response == null){
+                    return;
+                }
                 String bugInfo = response.getInputResponse(0);
                 if(!bugInfo.equals("")) {
                     Config s0 = new Config(MainClass.path + "/bugreports/" + System.currentTimeMillis() + ".yml", Config.YAML);
@@ -389,11 +433,19 @@ public class FormListener implements Listener {
                 }
                 break;
             case PlayerByPassReport:
-                String bypassInfo = response.getInputResponse(1);
-                String suspect = response.getInputResponse(0);
-                if(!bypassInfo.equals("") && !suspect.equals("")) {
-                    Config s1 = new Config(MainClass.path + "/bugreports/" + System.currentTimeMillis() + ".yml", Config.YAML);
-                    boolean bypassBoolean = response.getToggleResponse(2);
+                if(response == null){
+                    return;
+                }
+                String bypassInfo = response.getInputResponse(2);
+                String suspect;
+                if(response.getResponse(0) != null && response.getInputResponse(0).equals("")){
+                    suspect = response.getDropdownResponse(1).getElementContent();
+                }else{
+                    suspect = response.getInputResponse(0);
+                }
+                if(!bypassInfo.equals("") && !suspect.equals("") && !suspect.equals("- 未选择 -")) {
+                    Config s1 = new Config(MainClass.path + "/bypassreports/" + System.currentTimeMillis() + ".yml", Config.YAML);
+                    boolean bypassBoolean = response.getToggleResponse(3);
                     long millis1 = System.currentTimeMillis();
                     s1.set("player", player.getName());
                     s1.set("suspect", suspect);
@@ -404,12 +456,15 @@ public class FormListener implements Listener {
                     MainClass.byPassReports.add(newBypassReport);
                     s1.save();
                     player.sendMessage("§a感谢您的举报，我们正在全力核查中...");
-                    MainClass.log.log(Level.INFO, "["+player.getName()+"]提交bug反馈，具体内容："+ newBypassReport);
+                    MainClass.log.log(Level.INFO, "["+player.getName()+"]提交举报信息，具体内容："+ newBypassReport);
                 }else{
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
                 }
                 break;
             case WardenPardon:
+                if(response == null){
+                    return;
+                }
                 String pardonedPn = response.getInputResponse(0);
                 if(pardonedPn.equals("")){
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
@@ -450,6 +505,9 @@ public class FormListener implements Listener {
                 }
                 break;
             case WardenPunish:
+                if(response == null){
+                    return;
+                }
                 String punishedPn;
                 if(response.getResponse(0) != null && response.getInputResponse(0).equals("")){
                     punishedPn = response.getDropdownResponse(1).getElementContent();
@@ -544,6 +602,16 @@ public class FormListener implements Listener {
     private void formWindowModalOnClick(Player player, FormWindowModal window, FormType guiType) {
         if(window.getResponse() == null){ return; }
         switch (guiType){
+            case DealBugReportReturn:
+                if(window.getResponse().getClickedButtonId() == 0){
+                    FormMain.showWardenReportList(player, FormType.WardenDealBugReportList);
+                }
+                break;
+            case DealByPassReportReturn:
+                if(window.getResponse().getClickedButtonId() == 0){
+                    FormMain.showWardenReportList(player, FormType.WardenDealByPassReportList);
+                }
+                break;
         }
     }
 }

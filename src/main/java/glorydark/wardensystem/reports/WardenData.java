@@ -38,6 +38,15 @@ public class WardenData{
         this.joinTime = MainClass.getDate(config.getLong("join_time"));
     }
 
+    public void saveDefault(){
+        config.set("prefixes", new ArrayList<>());
+        config.set("accumulated_times", 0);
+        config.set("vetoed_times", 0);
+        config.set("all_grades_from_players", 5);
+        config.set("grade_player_counts", 0);
+        config.set("join_time", 0);
+    }
+
     public void addAccumulatedTimes() {
         config.set("accumulated_times", config.getInt("accumulated_times", 0) + 1);
         config.save();
