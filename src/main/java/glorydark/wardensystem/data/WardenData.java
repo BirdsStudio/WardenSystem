@@ -59,6 +59,7 @@ public class WardenData {
         if(!config.exists("join_time")){
             config.set("join_time", System.currentTimeMillis());
         }
+        config.save();
     }
 
     public void addAccumulatedTimes() {
@@ -88,6 +89,10 @@ public class WardenData {
         List<String> prefixes = new ArrayList<>(config.getStringList("prefixes"));
         prefixes.remove(string);
         config.set("prefixes", prefixes);
+        config.save();
+    }
+
+    public void save(){
         config.save();
     }
 }

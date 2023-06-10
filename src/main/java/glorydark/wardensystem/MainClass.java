@@ -4,12 +4,13 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 import glorydark.wardensystem.data.*;
-import glorydark.wardensystem.forms.Listener;
+import glorydark.wardensystem.forms.WardenEventListener;
 import glorydark.wardensystem.forms.FormMain;
 import glorydark.wardensystem.reports.matters.BugReport;
 import glorydark.wardensystem.reports.matters.ByPassReport;
@@ -22,6 +23,7 @@ import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class MainClass extends PluginBase {
 
@@ -121,7 +123,7 @@ public class MainClass extends PluginBase {
                 offlineData.removeIf(OfflineData::isExpired);
             }
         }.runTaskTimer(this, 0, 20);
-        this.getServer().getPluginManager().registerEvents(new Listener(), this);
+        this.getServer().getPluginManager().registerEvents(new WardenEventListener(), this);
         this.getServer().getCommandMap().register("", new WardenCommand(config.getString("command")));
         // this.getServer().getCommandMap().register("", new TestCommand("test"));
         this.getLogger().info("WardenSystem 加载成功！");
@@ -324,6 +326,47 @@ public class MainClass extends PluginBase {
                             }
                         }else{
                             commandSender.sendMessage("暂无未处理的bug反馈！");
+                        }
+                        break;
+                    case "refreshworkload":
+                        if(MainClass.wardens.size() > 0){
+                            for (WardenData value : MainClass.wardens.values()) {
+                                value.setAccumulatedTimes(0);
+                                value.save();
+                            }
+                        }
+                        break;
+                    case "workload":
+                        if(MainClass.wardens.size() > 0){
+                            log.log(Level.INFO, "CONSOLE执行：/warden workload");
+                            Map<String, Integer> cacheMap = new HashMap<>();
+                            for (Map.Entry<String, WardenData> entry : MainClass.wardens.entrySet()) {
+                                if(entry.getValue().getLevelType() == WardenLevelType.ADMIN){
+                                    continue;
+                                }
+                                cacheMap.put(entry.getKey(), entry.getValue().getAccumulatedTimes());
+                            }
+                            List<Map.Entry<String, Integer>> list = cacheMap.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getValue)).collect(Collectors.toList());
+                            if(list.size() == 0){
+                                log.log(Level.INFO, "CONSOLE执行结果：暂无数据");
+                                commandSender.sendMessage("暂无数据");
+                            }
+                            StringBuilder builder = new StringBuilder("- 最拉协管榜单（Bottom） -");
+                            int i = 1;
+                            for(Map.Entry<String, Integer> entry: list){
+                                builder.append("\n[").append(i).append("] ").append(entry.getKey()).append(" - ").append(entry.getValue());
+                                i++;
+                            }
+
+                            Collections.reverse(list);
+                            builder.append("\n\n").append("- 优秀协管榜单（Top） -");
+                            i = 1;
+                            for(Map.Entry<String, Integer> entry: list){
+                                builder.append("\n[").append(i).append("] ").append(entry.getKey()).append(" - ").append(entry.getValue());
+                                i++;
+                            }
+                            commandSender.sendMessage(builder.toString());
+                            log.log(Level.INFO, "CONSOLE执行结果：\n"+builder.toString());
                         }
                         break;
                 }

@@ -5,6 +5,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.form.response.FormResponseCustom;
@@ -25,7 +26,7 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
-public class Listener implements cn.nukkit.event.Listener {
+public class WardenEventListener implements Listener {
     public static final HashMap<Player, HashMap<Integer, FormType>> UI_CACHE = new HashMap<>();
     
     public static void showFormWindow(Player player, FormWindow window, FormType guiType) {
@@ -179,6 +180,9 @@ public class Listener implements cn.nukkit.event.Listener {
                         break;
                     case 5:
                         FormMain.showWardenProfile(player);
+                        break;
+                    case 6:
+                        FormMain.showAdminManage(player);
                         break;
                 }
                 break;
@@ -401,9 +405,15 @@ public class Listener implements cn.nukkit.event.Listener {
                         FormMain.showRemoveWarden(player);
                         break;
                     case 2:
+                        FormMain.showWardenStatistics(player);
+                        break;
+                    case 3:
                         FormMain.showWardenMain(player);
                         break;
                 }
+                break;
+            case WardenStatistics:
+                FormMain.showWardenMain(player);
                 break;
         }
     }
@@ -816,7 +826,10 @@ public class Listener implements cn.nukkit.event.Listener {
                     return;
                 }
                 pn = response.getDropdownResponse(0).getElementContent();
-                if(pn.equals("") || pn.equals("- 未选择 - ")){
+                if(pn.equals("- 未选择 - ")){
+                    pn = response.getInputResponse(1);
+                }
+                if(pn.equals("")){
                     FormMain.showReportReturnMenu("§c您还未选择一个协管！", player, FormType.WardenModifyOperatorReturn);
                     return;
                 }

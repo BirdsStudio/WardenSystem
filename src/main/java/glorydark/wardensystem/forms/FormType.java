@@ -29,5 +29,6 @@ public enum FormType {
     PlayerStatus,
     AdminManageType,
     AdminAddWarden,
-    AdminRemoveWarden
+    AdminRemoveWarden,
+    WardenStatistics
 }
