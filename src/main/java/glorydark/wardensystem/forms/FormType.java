@@ -12,8 +12,6 @@ public enum FormType {
     WardenPunish,
     WardenTools,
     WardenTeleportTools,
-    WardenUnBanTool,
-    WardenUnMuteTool,
     WardenPardon,
     PlayerMain,
     PlayerReportMain,
@@ -22,5 +20,8 @@ public enum FormType {
     PlayerMailboxMain,
     PlayerMailboxInfo,
     DealBugReportReturn,
-    DealByPassReportReturn
+    DealByPassReportReturn,
+    PlayerStatusReturn,
+    RecentProfile,
+    PlayerStatus
 }

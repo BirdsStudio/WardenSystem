@@ -5,9 +5,10 @@ import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
-import glorydark.wardensystem.forms.FormListener;
+import glorydark.wardensystem.forms.Listener;
 import glorydark.wardensystem.forms.FormMain;
 import glorydark.wardensystem.reports.WardenData;
 import glorydark.wardensystem.reports.matters.BugReport;
@@ -39,6 +40,10 @@ public class MainClass extends PluginBase {
     public static List<String> muted = new ArrayList<>();
 
     public static Logger log;
+
+    public static List<OfflineData> offlineData;
+
+    public static HashMap<Player, PlayerData> playerData;
 
     @Override
     public void onLoad() {
@@ -92,7 +97,13 @@ public class MainClass extends PluginBase {
         for(String key: rewardCfg.getKeys(false)){
             rewards.put(key, new Reward(rewardCfg.getSection(key)));
         }
-        this.getServer().getPluginManager().registerEvents(new FormListener(), this);
+        new NukkitRunnable() {
+            @Override
+            public void run() {
+                offlineData.removeIf(OfflineData::isExpired);
+            }
+        }.runTaskTimer(this, 0, 20);
+        this.getServer().getPluginManager().registerEvents(new Listener(), this);
         this.getServer().getCommandMap().register("", new WardenCommand(config.getString("command")));
         // this.getServer().getCommandMap().register("", new TestCommand("test"));
         this.getLogger().info("WardenSystem 加载成功！");
@@ -295,36 +306,36 @@ public class MainClass extends PluginBase {
         return !String.valueOf(config.get(player.getName()+".end", "")).equals("permanent")? MainClass.getDate(config.getLong(player.getName()+".end")): "永久封禁";
     }
 
-    public static long getRemainedBannedTime(Player player){
+    public static long getRemainedBannedTime(String player){
         Config config = new Config(path+"/ban.yml", Config.YAML);
-        if(config.exists(player.getName())){
-            if(config.get(player.getName()+".end").toString().equals("permanent")){
+        if(config.exists(player)){
+            if(config.get(player+".end").toString().equals("permanent")){
                 return -1;
             }else{
-                if(System.currentTimeMillis() >= config.getLong(player.getName()+".end")){
-                    config.remove(player.getName());
+                if(System.currentTimeMillis() >= config.getLong(player+".end")){
+                    config.remove(player);
                     config.save();
                     return 0;
                 }else{
-                    return config.getLong(player.getName()+".end") - System.currentTimeMillis();
+                    return config.getLong(player+".end") - System.currentTimeMillis();
                 }
             }
         }
         return 0;
     }
 
-    public static long getRemainedMutedTime(Player player){
+    public static long getRemainedMutedTime(String player){
         Config config = new Config(path+"/mute.yml", Config.YAML);
-        if(config.exists(player.getName())){
-            if(config.get(player.getName()+".end").toString().equals("permanent")){
+        if(config.exists(player)){
+            if(config.get(player+".end").toString().equals("permanent")){
                 return -1;
             }else{
-                if(System.currentTimeMillis() >= config.getLong(player.getName()+".end")){
-                    config.remove(player.getName());
+                if(System.currentTimeMillis() >= config.getLong(player+".end")){
+                    config.remove(player);
                     config.save();
                     return 0;
                 }else{
-                    return (config.getLong(player.getName()+".end") - System.currentTimeMillis());
+                    return (config.getLong(player+".end") - System.currentTimeMillis());
                 }
             }
         }

@@ -1,10 +1,11 @@
 package glorydark.wardensystem.forms;
 
+import cn.nukkit.AdventureSettings;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.event.EventHandler;
-import cn.nukkit.event.Listener;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.form.response.FormResponseCustom;
 import cn.nukkit.form.window.FormWindow;
@@ -13,6 +14,8 @@ import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.utils.Config;
 import glorydark.wardensystem.MainClass;
+import glorydark.wardensystem.OfflineData;
+import glorydark.wardensystem.PlayerData;
 import glorydark.wardensystem.reports.WardenData;
 import glorydark.wardensystem.reports.matters.BugReport;
 import glorydark.wardensystem.reports.matters.ByPassReport;
@@ -21,22 +24,38 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
-public class FormListener implements Listener {
+public class Listener implements cn.nukkit.event.Listener {
     public static final HashMap<Player, HashMap<Integer, FormType>> UI_CACHE = new HashMap<>();
     
     public static void showFormWindow(Player player, FormWindow window, FormType guiType) {
         UI_CACHE.computeIfAbsent(player, i -> new HashMap<>()).put(player.showFormWindow(window), guiType);
     }
+
+    @EventHandler
+    public void Quit(PlayerQuitEvent event){
+        Player player = event.getPlayer();
+        MainClass.offlineData.add(new OfflineData(player));
+    }
+
+    @EventHandler
+    public void EntityDamageByEntityEvent(EntityDamageByEntityEvent event){
+        if(event.getDamager() instanceof Player && event.getEntity() instanceof Player){
+            Player player = (Player) event.getDamager();
+            PlayerData data = MainClass.playerData.getOrDefault(player, new PlayerData(player, new ArrayList<>()));
+            data.addDamageSource((Player) event.getEntity());
+            MainClass.playerData.put(player, data);
+        }
+    }
     
     @EventHandler
     public void Join(PlayerJoinEvent event){
         Player player = event.getPlayer();
-        long bannedRemained = MainClass.getRemainedBannedTime(player);
+        long bannedRemained = MainClass.getRemainedBannedTime(player.getName());
         if(bannedRemained != 0){
             player.kick("§c您已被封禁\n§e解封时间："+MainClass.getUnBannedDate(player));
             return;
         }
-        long mutedRemained = MainClass.getRemainedMutedTime(player);
+        long mutedRemained = MainClass.getRemainedMutedTime(player.getName());
         if(mutedRemained != 0){
             player.sendMessage("§c您已被禁言\n§e解封时间："+MainClass.getUnMutedDate(player));
             return;
@@ -132,6 +151,12 @@ public class FormListener implements Listener {
                     case 6:
                         FormMain.showReportTypeMenu(player);
                         break;
+                    case 7:
+                        FormMain.showRecentProfile(player);
+                        break;
+                    case 8:
+                        FormMain.showCheckPlayerDetails(player);
+                        break;
                 }
                 break;
             case WardenTools:
@@ -145,19 +170,34 @@ public class FormListener implements Listener {
                         MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用清空背包功能！");
                         break;
                     case 2:
-                    case 3:
                         switch (window.getResponse().getClickedButton().getText()){
                             case "切换至生存模式":
                                 player.setGamemode(0);
+                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]切换至生存模式！");
                                 break;
-                            case "切换至创造模式":
+                            /* case "切换至创造模式":
                                 player.setGamemode(1);
                                 break;
+                             */
                             case "切换至观察者模式":
                                 player.setGamemode(3);
+                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"切换至观察者模式");
                                 break;
                         }
                         break;
+                    case 3:
+                        switch (window.getResponse().getClickedButton().getText()){
+                            case "开启飞行":
+                                player.getAdventureSettings().set(AdventureSettings.Type.FLYING, true);
+                                player.getAdventureSettings().update();
+                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"开启飞行！");
+                                break;
+                            case "关闭飞行":
+                                player.getAdventureSettings().set(AdventureSettings.Type.FLYING, false);
+                                player.getAdventureSettings().update();
+                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"关闭飞行！");
+                                break;
+                        }
                     case 4:
                         FormMain.showUsefulTools(player);
                         break;
@@ -219,6 +259,9 @@ public class FormListener implements Listener {
                     case 1:
                         FormMain.showMailBoxMain(player);
                         break;
+                    case 2:
+                        FormMain.showRecentProfile(player);
+                        break;
                 }
                 break;
             case PlayerMailboxMain:
@@ -275,6 +318,9 @@ public class FormListener implements Listener {
                         break;
                 }
                 break;
+            case RecentProfile:
+                Server.getInstance().dispatchCommand(player, "r");
+                break;
         }
     }
 
@@ -318,7 +364,7 @@ public class FormListener implements Listener {
                     Map<String, Object> map = new HashMap<>();
                     map.put("sender", "协管团队");
                     map.put("title", "您的反馈已被驳回！");
-                    map.put("content", "内容:["+bugReport.getInfo()+"]，请勿恶意或乱反馈！");
+                    map.put("content", "内容:["+bugReport.getInfo()+"]，我们暂未查明对应的反馈，请您等待我们的回信！");
                     map.put("millis", System.currentTimeMillis());
                     map.put("commands", new ArrayList<>());
                     map.put("messages", new ArrayList<>());
@@ -357,32 +403,33 @@ public class FormListener implements Listener {
                     List<Map<String, Object>> list1 = config1.get("unclaimed", new ArrayList<>());
                     Map<String, Object> map1 = new HashMap<>();
                     map1.put("sender", "协管团队");
-                    map1.put("title", "感谢您向协管团队反馈bug！");
-                    map1.put("content", "非常感谢您帮助我们发现服务器中潜在的bug！");
+                    map1.put("title", "感谢您向协管团队举报违规玩家！");
+                    map1.put("content", "非常感谢您帮助我们维护本服务器的环境！");
                     map1.put("millis", System.currentTimeMillis());
                     map1.put("commands", MainClass.rewards.get(reward1).getCommands());
                     map1.put("messages", MainClass.rewards.get(reward1).getMessages());
                     list1.add(map1);
                     config1.set("unclaimed", list1);
                     config1.save();
+                    FormMain.showWardenPunish(player, byPassReport.getPlayer());
                 }else{
                     Config config = new Config(MainClass.path+"/mailbox/"+byPassReport.getPlayer()+".yml", Config.YAML);
                     List<Map<String, Object>> list = config.get("unclaimed", new ArrayList<>());
                     Map<String, Object> map = new HashMap<>();
                     map.put("sender", "协管团队");
                     map.put("title", "您的举报已被驳回！");
-                    map.put("content", "内容:["+byPassReport.getInfo()+"]，请勿恶意或乱举报他人！");
+                    map.put("content", "内容:["+byPassReport.getInfo()+"]，我们暂时未查明该玩家的作弊行为，请您等待我们的回信！");
                     map.put("millis", System.currentTimeMillis());
                     map.put("commands", new ArrayList<>());
                     map.put("messages", new ArrayList<>());
                     list.add(map);
                     config.set("unclaimed", list);
                     config.save();
+                    FormMain.showReportReturnMenu("处理成功", player, FormType.DealByPassReportReturn);
                 }
                 bypassConfig.save();
                 bypassFile.delete();
                 MainClass.byPassReports.remove(byPassReport);
-                FormMain.showReportReturnMenu("处理成功", player, FormType.DealByPassReportReturn);
                 MainClass.wardens.get(player.getName()).addAccumulatedTimes();
                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理bug反馈完毕，具体信息详见：bypassreports/"+saveName1+".yml");
                 break;
@@ -596,6 +643,38 @@ public class FormListener implements Listener {
                 }
                 player.sendMessage("§a处罚成功！");
                 break;
+            case PlayerStatus:
+                if(response == null){
+                    return;
+                }
+                StringBuilder builder = new StringBuilder("");
+                String name = response.getInputResponse(0);
+                if(!name.equals("") && Server.getInstance().lookupName(name).isPresent()){
+                    long bannedRemained = MainClass.getRemainedBannedTime(name);
+                    if(bannedRemained < 0L){
+                        if(bannedRemained == -1){
+                            builder.append("封禁状态：§e永久封禁");
+                        }else {
+                            builder.append("封禁状态：§a未被封禁");
+                        }
+                    }else{
+                        builder.append("封禁状态：§e封禁中【剩余时间：").append(MainClass.getDate(bannedRemained)).append("】");
+                    }
+                    long muteRemained = MainClass.getRemainedMutedTime(name);
+                    if(muteRemained < 0L){
+                        if(muteRemained == -1){
+                            builder.append("封禁状态：§e永久封禁");
+                        }else {
+                            builder.append("封禁状态：§a未被封禁");
+                        }
+                    }else{
+                        builder.append("封禁状态：§e封禁中【剩余时间：").append(MainClass.getDate(muteRemained)).append("】");
+                    }
+                }else{
+                    FormMain.showReportReturnMenu("该玩家不存在！", player, FormType.PlayerStatusReturn);
+                }
+                FormMain.showReportReturnMenu(builder.toString(), player, FormType.PlayerStatusReturn);
+                break;
         }
     }
 
@@ -610,6 +689,11 @@ public class FormListener implements Listener {
             case DealByPassReportReturn:
                 if(window.getResponse().getClickedButtonId() == 0){
                     FormMain.showWardenReportList(player, FormType.WardenDealByPassReportList);
+                }
+                break;
+            case PlayerStatusReturn:
+                if(window.getResponse().getClickedButtonId() == 0){
+                    FormMain.showWardenReportList(player, FormType.WardenMain);
                 }
                 break;
         }
