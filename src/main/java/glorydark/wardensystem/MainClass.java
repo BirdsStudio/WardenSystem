@@ -183,6 +183,9 @@ public class MainClass extends PluginBase {
                             if(punished != null){
                                 punished.kick("您已被封禁");
                             }
+                            // 向所有在线玩家广播封禁消息
+                            String message = "§c玩家 " + strings[1] + " 被封禁了！";
+                            Server.getInstance().broadcastMessage(message);
                         }
                         break;
                     case "unban":
