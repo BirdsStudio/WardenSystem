@@ -67,6 +67,7 @@ public class FormMain {
             onlinePlayers.add(p.getName());
         }
         ElementDropdown dropdown = new ElementDropdown("选择在线玩家");
+        dropdown.addOption("- 未选择 -");
         dropdown.getOptions().addAll(onlinePlayers);
         window.addElement(dropdown);
         List<String> types = new ArrayList<>();
@@ -77,7 +78,7 @@ public class FormMain {
         window.addElement(new ElementDropdown("处罚类型", types));
         window.addElement(new ElementToggle("是否永久"));
         window.addElement(new ElementSlider("年", 0, 30, 1));
-        window.addElement(new ElementSlider("月", 0, 12, 1));
+        window.addElement(new ElementSlider("月", 0, 12, 1, 1));
         window.addElement(new ElementSlider("天", 0, 30, 1));
         window.addElement(new ElementSlider("时", 0, 24, 1));
         window.addElement(new ElementSlider("分", 0, 60, 1));
@@ -308,45 +309,47 @@ public class FormMain {
     public static void showRecentProfile(Player player){
         FormWindowSimple simple = new FormWindowSimple("协管系统 - 最近数据查询", "");
         StringBuilder builder = new StringBuilder("");
-        builder.append("最近攻击你的玩家:").append("\n");
-        PlayerData data = MainClass.playerData.getOrDefault(player, new PlayerData(player, new ArrayList<>()));
+        builder.append("§f最近攻击你的玩家:").append("\n");
+        PlayerData data = MainClass.playerData.getOrDefault(player, new PlayerData(player));
         if(data.getSourceList().size() > 0){
             for(PlayerData.DamageSource damageSource: data.getSourceList()){
                 if(damageSource.getDamager().equals(player.getName())){
                     continue;
                 }
-                builder.append("----------")
-                        .append("* ").append(damageSource.getDamager()).append(": \n")
-                        .append("上次攻击:").append((System.currentTimeMillis() - damageSource.getMillis()) / 1000).append("秒前").append("\n")
-                        .append("累计连续攻击次数：").append(damageSource.getDamageTime())
-                        .append("----------");
+                builder.append("§f----------").append("\n")
+                        .append("§f* ").append(damageSource.getDamager()).append(": \n")
+                        .append("§f上次攻击: ").append((System.currentTimeMillis() - damageSource.getMillis()) / 1000).append("秒前").append("\n")
+                        .append("§f累计连续攻击次数： ").append(damageSource.getDamageTime()).append("\n")
+                        .append("§f----------").append("\n");
             }
         }else{
-            builder.append("§a- 暂无玩家攻击过您！ -");
+            builder.append("§a- 暂无玩家攻击过您！ -").append("\n");
         }
 
+        builder.append("\n").append("§f在你附近的玩家:").append("\n");
         if(data.getSurroundedPlayer().size() > 0){
             for(Player p : data.getSurroundedPlayer()){
                 if(p == player){
                     continue;
                 }
-                builder.append("----------")
-                        .append("* ").append(p).append(": \n")
-                        .append("展示名:").append(p.getDisplayName())
-                        .append("是否正在飞行:").append(p.getAdventureSettings().get(AdventureSettings.Type.FLYING))
-                        .append("----------");
+                builder.append("§f----------").append("\n")
+                        .append("§f* ").append(p.getName()).append(": \n")
+                        .append("§f展示名: ").append(p.getDisplayName()).append("\n")
+                        .append("§f是否正在飞行: ").append(p.getAdventureSettings().get(AdventureSettings.Type.FLYING)).append("\n")
+                        .append("§f----------").append("\n");
             }
         }else{
-            builder.append("§a- 暂无玩家在您附近！ -");
+            builder.append("§a- 暂无玩家在您附近！ -").append("\n");
         }
 
+        builder.append("\n").append("§f最近下线的玩家:").append("\n");
         if(MainClass.offlineData.size() > 0){
             for(OfflineData offlineData : MainClass.offlineData){
-                builder.append("----------")
+                builder.append("§f----------").append("\n")
                         .append("* ").append(offlineData.getName()).append(": \n")
-                        .append("展示名:").append(offlineData.getDisplayName())
-                        .append("上次在线:").append((System.currentTimeMillis() - offlineData.getMillis()) / 1000).append("秒前")
-                        .append("----------");
+                        .append("§f展示名: ").append(offlineData.getDisplayName()).append("\n")
+                        .append("§f上次在线: ").append((System.currentTimeMillis() - offlineData.getMillis()) / 1000).append("秒前\n")
+                        .append("§f----------").append("\n");
             }
         }else{
             builder.append("§a- 暂无玩家最近下线过！ -");

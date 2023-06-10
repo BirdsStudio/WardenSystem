@@ -32,23 +32,24 @@ public class Listener implements cn.nukkit.event.Listener {
     }
 
     @EventHandler
-    public void Quit(PlayerQuitEvent event){
+    public void PlayerQuitEvent(PlayerQuitEvent event){
         Player player = event.getPlayer();
         MainClass.offlineData.add(new OfflineData(player));
+        MainClass.log.log(Level.INFO, "操作员["+player.getName()+"退出服务器，飞行状态"+player.getAdventureSettings().get(AdventureSettings.Type.FLYING)+"，游戏模式："+player.getGamemode()+"！");
     }
 
     @EventHandler
     public void EntityDamageByEntityEvent(EntityDamageByEntityEvent event){
         if(event.getDamager() instanceof Player && event.getEntity() instanceof Player){
-            Player player = (Player) event.getDamager();
-            PlayerData data = MainClass.playerData.getOrDefault(player, new PlayerData(player, new ArrayList<>()));
-            data.addDamageSource((Player) event.getEntity());
+            Player player = (Player) event.getEntity();
+            PlayerData data = MainClass.playerData.getOrDefault(player, new PlayerData(player));
+            data.addDamageSource((Player) event.getDamager());
             MainClass.playerData.put(player, data);
         }
     }
     
     @EventHandler
-    public void Join(PlayerJoinEvent event){
+    public void PlayerJoinEvent(PlayerJoinEvent event){
         Player player = event.getPlayer();
         long bannedRemained = MainClass.getRemainedBannedTime(player.getName());
         if(bannedRemained != 0){
@@ -61,6 +62,7 @@ public class Listener implements cn.nukkit.event.Listener {
             return;
         }
         if(MainClass.wardens.containsKey(player.getName())){
+            MainClass.log.log(Level.INFO, "操作员["+player.getName()+"进入服务器！");
             if(MainClass.bugReports.size() > 0){
                 player.sendMessage("§e目前有【§c"+MainClass.bugReports.size()+"§e】个bug反馈信息待处理！");
             }else{
@@ -188,16 +190,15 @@ public class Listener implements cn.nukkit.event.Listener {
                     case 3:
                         switch (window.getResponse().getClickedButton().getText()){
                             case "开启飞行":
-                                player.getAdventureSettings().set(AdventureSettings.Type.FLYING, true);
-                                player.getAdventureSettings().update();
+                                setFlying(player, true);
                                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"开启飞行！");
                                 break;
                             case "关闭飞行":
-                                player.getAdventureSettings().set(AdventureSettings.Type.FLYING, false);
-                                player.getAdventureSettings().update();
+                                setFlying(player, false);
                                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"关闭飞行！");
                                 break;
                         }
+                        break;
                     case 4:
                         FormMain.showUsefulTools(player);
                         break;
@@ -411,7 +412,7 @@ public class Listener implements cn.nukkit.event.Listener {
                     list1.add(map1);
                     config1.set("unclaimed", list1);
                     config1.save();
-                    FormMain.showWardenPunish(player, byPassReport.getPlayer());
+                    FormMain.showWardenPunish(player, byPassReport.getSuspect());
                 }else{
                     Config config = new Config(MainClass.path+"/mailbox/"+byPassReport.getPlayer()+".yml", Config.YAML);
                     List<Map<String, Object>> list = config.get("unclaimed", new ArrayList<>());
@@ -561,7 +562,7 @@ public class Listener implements cn.nukkit.event.Listener {
                 }else{
                     punishedPn = response.getInputResponse(0);
                 }
-                if(punishedPn.equals("")){
+                if(punishedPn.equals("") || punishedPn.equals("- 未选择 -")){
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
                     return;
                 }else{
@@ -651,24 +652,25 @@ public class Listener implements cn.nukkit.event.Listener {
                 String name = response.getInputResponse(0);
                 if(!name.equals("") && Server.getInstance().lookupName(name).isPresent()){
                     long bannedRemained = MainClass.getRemainedBannedTime(name);
-                    if(bannedRemained < 0L){
+                    if(bannedRemained <= 0L){
                         if(bannedRemained == -1){
                             builder.append("封禁状态：§e永久封禁");
                         }else {
                             builder.append("封禁状态：§a未被封禁");
                         }
                     }else{
-                        builder.append("封禁状态：§e封禁中【剩余时间：").append(MainClass.getDate(bannedRemained)).append("】");
+                        builder.append("封禁状态：§e封禁中【解禁时间：").append(MainClass.getDate(bannedRemained)).append("】");
                     }
+                    builder.append("\n").append("§f");
                     long muteRemained = MainClass.getRemainedMutedTime(name);
-                    if(muteRemained < 0L){
+                    if(muteRemained <= 0L){
                         if(muteRemained == -1){
                             builder.append("封禁状态：§e永久封禁");
                         }else {
                             builder.append("封禁状态：§a未被封禁");
                         }
                     }else{
-                        builder.append("封禁状态：§e封禁中【剩余时间：").append(MainClass.getDate(muteRemained)).append("】");
+                        builder.append("封禁状态：§e封禁中【解禁时间：").append(MainClass.getDate(muteRemained)).append("】");
                     }
                 }else{
                     FormMain.showReportReturnMenu("该玩家不存在！", player, FormType.PlayerStatusReturn);
@@ -693,9 +695,19 @@ public class Listener implements cn.nukkit.event.Listener {
                 break;
             case PlayerStatusReturn:
                 if(window.getResponse().getClickedButtonId() == 0){
-                    FormMain.showWardenReportList(player, FormType.WardenMain);
+                    FormMain.showWardenMain(player);
                 }
                 break;
         }
+    }
+
+    public void setFlying(Player player, boolean bool){
+        AdventureSettings settings = player.getAdventureSettings();
+        settings.set(AdventureSettings.Type.ALLOW_FLIGHT, bool);
+        if(!bool) {
+            settings.set(AdventureSettings.Type.FLYING, false);
+        }
+        player.setAdventureSettings(settings);
+        player.getAdventureSettings().update();
     }
 }

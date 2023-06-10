@@ -5,14 +5,19 @@ import cn.nukkit.Server;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@AllArgsConstructor
 public class PlayerData {
 
     Player player;
-    List<DamageSource> sourceList;
+    List<DamageSource> sourceList = new ArrayList<>();
+
+    public PlayerData(Player player){
+        this.player = player;
+    }
 
     public List<DamageSource> getSourceList() {
         refreshSourceList();
@@ -20,11 +25,18 @@ public class PlayerData {
     }
 
     public void addDamageSource(Player damager){
-        DamageSource source = sourceList.stream().filter(damageSource -> damageSource.damager.equals(damager.getName())).collect(Collectors.toList()).get(0);
-        if(source == null){
-            source = new DamageSource(damager.getName(), System.currentTimeMillis(), 0);
+        DamageSource source;
+        if(sourceList.size() > 0) {
+            List<DamageSource> sources = sourceList.stream().filter(damageSource -> damageSource.damager.equals(damager.getName())).collect(Collectors.toList());
+            if(sources.size() > 0){
+                source = sources.get(0);
+                sourceList.remove(source);
+            }else{
+                source = new DamageSource(damager.getName(), System.currentTimeMillis(), 1);
+            }
+        }else{
+            source = new DamageSource(damager.getName(), System.currentTimeMillis(), 1);
         }
-        sourceList.remove(source);
         sourceList.add(new DamageSource(damager.getName(), System.currentTimeMillis(), source.getDamageTime() + 1));
     }
 
@@ -34,7 +46,7 @@ public class PlayerData {
 
     // 获取以玩家为中心16格内的玩家
     public List<Player> getSurroundedPlayer(){
-        return Server.getInstance().getOnlinePlayers().values().stream().filter(p -> p.getLevel() == player.getLevel() && p.distance(player) < 16).collect(Collectors.toList());
+        return Server.getInstance().getOnlinePlayers().values().stream().filter(p -> !p.getName().equals(player.getName()) && p.getLevel() == player.getLevel() && p.distance(player) < 16).collect(Collectors.toList());
     }
 
     @Data

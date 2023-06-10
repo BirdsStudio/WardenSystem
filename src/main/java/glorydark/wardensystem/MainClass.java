@@ -41,9 +41,9 @@ public class MainClass extends PluginBase {
 
     public static Logger log;
 
-    public static List<OfflineData> offlineData;
+    public static List<OfflineData> offlineData = new ArrayList<>();
 
-    public static HashMap<Player, PlayerData> playerData;
+    public static HashMap<Player, PlayerData> playerData = new HashMap<>();
 
     @Override
     public void onLoad() {
@@ -152,7 +152,7 @@ public class MainClass extends PluginBase {
                             wardens.add(strings[1]);
                             config.set("wardens", wardens);
                             config.save();
-                            MainClass.wardens.put(strings[1], new WardenData(null, new Config()));
+                            MainClass.wardens.put(strings[1], new WardenData(null, new Config(path+"/"+strings[1]+".yml")));
                             commandSender.sendMessage("§a成功为玩家【"+strings[1]+"】赋予协管权限！");
                             log.log(Level.INFO, "CONSOLE执行：/warden add "+strings[1]);
                         }
