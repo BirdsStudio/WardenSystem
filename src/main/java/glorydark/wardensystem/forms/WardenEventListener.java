@@ -470,7 +470,7 @@ public class WardenEventListener implements Listener {
                 bugFile.delete();
                 MainClass.bugReports.remove(bugReport);
                 FormMain.showReportReturnMenu("处理成功", player, FormType.DealBugReportReturn);
-                MainClass.wardens.get(player.getName()).addAccumulatedTimes();
+                MainClass.wardens.get(player.getName()).addDealBugReportTime();
                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理bug反馈完毕，具体信息详见：bugreports/"+saveName+".yml");
                 break;
             case WardenDealByPassReport:
@@ -524,11 +524,14 @@ public class WardenEventListener implements Listener {
                 bypassConfig.save();
                 bypassFile.delete();
                 MainClass.byPassReports.remove(byPassReport);
-                MainClass.wardens.get(player.getName()).addAccumulatedTimes();
+                MainClass.wardens.get(player.getName()).addDealBypassReportTime();
                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理bug反馈完毕，具体信息详见：bypassreports/"+saveName1+".yml");
                 break;
             case WardenPersonalInfo:
                 if(response == null){
+                    return;
+                }
+                if(response.getDropdownResponse(4).getElementContent().equals("- 默认 -")){
                     return;
                 }
                 WardenData data = MainClass.wardens.get(player.getName());

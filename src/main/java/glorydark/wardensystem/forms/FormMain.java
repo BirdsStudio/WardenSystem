@@ -66,13 +66,13 @@ public class FormMain {
 
     public static void showWardenStatistics(Player player){
         FormWindowSimple simple = new FormWindowSimple("管理系统 - 查看绩效", "");
-        StringBuilder builder = new StringBuilder("");
+        StringBuilder builder = new StringBuilder();
         Map<String, Integer> cacheMap = new HashMap<>();
         for (Map.Entry<String, WardenData> entry : MainClass.wardens.entrySet()) {
             if(entry.getValue().getLevelType() == WardenLevelType.ADMIN){
                 continue;
             }
-            cacheMap.put(entry.getKey(), entry.getValue().getAccumulatedTimes());
+            cacheMap.put(entry.getKey(), entry.getValue().getDealBugReportTimes()+entry.getValue().getDealBypassReportTimes());
         }
         List<Map.Entry<String, Integer>> list = cacheMap.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getValue)).collect(Collectors.toList());
         if(list.size() == 0){
@@ -299,10 +299,12 @@ public class FormMain {
         DecimalFormat format = new DecimalFormat("#.##");
         //to do: 评分正确率目前得从后台更改
         window.addElement(new ElementLabel("玩家评分："+(data.getGradePlayerCounts() > 0? format.format(new BigDecimal(data.allGradesFromPlayers).divide(new BigDecimal(data.gradePlayerCounts), 2, RoundingMode.HALF_UP)) +" / 5.0": 5.0 +" / 5.0")));
-        window.addElement(new ElementLabel("正确率："+(data.getAccumulatedTimes() > 0? (format.format(new BigDecimal("1.0").subtract(new BigDecimal(data.vetoedTimes).divide(new BigDecimal(data.accumulatedTimes), 4, RoundingMode.HALF_UP)).multiply(new BigDecimal(100))) + "%%"): "100%%")));
-
+        //window.addElement(new ElementLabel("正确率："+((data.getDeal_bypass_report_times()) > 0? (format.format(new BigDecimal("1.0").subtract(new BigDecimal(data.vetoedTimes).divide(new BigDecimal(data.accumulatedTimes), 4, RoundingMode.HALF_UP)).multiply(new BigDecimal(100))) + "%%"): "100%%")));
+        window.addElement(new ElementLabel("累计处理bug反馈数："+data.getDealBugReportTimes() + "\n累计处理举报数：" + data.getDealBypassReportTimes())); // To do
         window.addElement(new ElementLabel("入职时间："+ data.getJoinTime()));
-        window.addElement(new ElementDropdown("更改称号显示", data.getPrefixes()));
+        List<String> prefixes = new ArrayList<>(data.getPrefixes());
+        prefixes.add("- 默认 -");
+        window.addElement(new ElementDropdown("更改称号显示", prefixes));
         WardenEventListener.showFormWindow(player, window, FormType.WardenPersonalInfo);
     }
 
@@ -405,7 +407,7 @@ public class FormMain {
 
     public static void showRecentProfile(Player player){
         FormWindowSimple simple = new FormWindowSimple("协管系统 - 最近数据查询", "");
-        StringBuilder builder = new StringBuilder("");
+        StringBuilder builder = new StringBuilder();
         builder.append("§f最近攻击你的玩家:").append("\n");
         PlayerData data = MainClass.playerData.getOrDefault(player, new PlayerData(player));
         if(data.getSourceList().size() > 0){

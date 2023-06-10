@@ -13,7 +13,9 @@ public class WardenData {
 
     public Report dealing; //处理事务类型
 
-    public int accumulatedTimes;
+    public int dealBugReportTimes;
+
+    public int dealBypassReportTimes;
 
     public int vetoedTimes;
 
@@ -33,7 +35,8 @@ public class WardenData {
         this.dealing = dealing;
         this.config = config;
         this.prefixes = new ArrayList<>(config.getStringList("prefixes"));
-        this.accumulatedTimes = config.getInt("accumulated_times", 0);
+        this.dealBugReportTimes = config.getInt("deal_bug_report_times", 0);
+        this.dealBypassReportTimes = config.getInt("deal_bypass_report_times", 0);
         this.vetoedTimes = config.getInt("vetoed_times", 0);
         this.allGradesFromPlayers = config.getInt("all_grades_from_players", 5);
         this.gradePlayerCounts = config.getInt("grade_player_counts", 0);
@@ -44,8 +47,11 @@ public class WardenData {
         if(!config.exists("prefixes")){
             config.set("prefixes", new ArrayList<>());
         }
-        if(!config.exists("accumulated_times")){
-            config.set("accumulated_times", 0);
+        if(!config.exists("deal_bug_report_times")){
+            config.set("deal_bug_report_times", 0);
+        }
+        if(!config.exists("deal_bypass_report_times")){
+            config.set("deal_bypass_report_times", 0);
         }
         if(!config.exists("vetoed_times")){
             config.set("vetoed_times", 0);
@@ -62,8 +68,13 @@ public class WardenData {
         config.save();
     }
 
-    public void addAccumulatedTimes() {
-        config.set("accumulated_times", config.getInt("accumulated_times", 0) + 1);
+    public void addDealBugReportTime() {
+        config.set("deal_bug_report_times", config.getInt("deal_bug_report_times", 0) + 1);
+        config.save();
+    }
+
+    public void addDealBypassReportTime() {
+        config.set("deal_bypass_report_times", config.getInt("deal_bypass_report_times", 0) + 1);
         config.save();
     }
 

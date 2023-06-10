@@ -162,12 +162,15 @@ public class MainClass extends PluginBase {
                 }
             }else{
                 switch (strings[0]){
-                    case "privilege":
+                    case "admin":
                         if(strings.length < 2){ return true; }
                         Config config = new Config(path+"/config.yml", Config.YAML);
                         List<String> admins = new ArrayList<>(config.getStringList("admins"));
                         if(admins.contains(strings[1])){
-                            commandSender.sendMessage("§c该玩家已为协管主管！");
+                            admins.remove(strings[1]);
+                            commandSender.sendMessage("§a成功取消玩家【"+strings[1]+"】协管主管权限！");
+                            log.log(Level.INFO, "CONSOLE执行：/warden admin "+strings[1] + "，§a成功取消玩家【"+strings[1]+"】协管主管权限！");
+                            return true;
                         }
                         List<String> wardens = new ArrayList<>(config.getStringList("wardens"));
                         if(wardens.contains(strings[1])){
@@ -177,6 +180,8 @@ public class MainClass extends PluginBase {
                         admins.add(strings[1]);
                         config.set("admins", admins);
                         config.save();
+                        commandSender.sendMessage("§a成功为玩家【"+strings[1]+"】赋予协管主管权限！");
+                        log.log(Level.INFO, "CONSOLE执行：/warden admin "+strings[1]+"，§a成功为玩家【"+strings[1]+"】赋予协管主管权限！");
                         break;
                     case "add":
                         if(strings.length < 2){ return true; }
@@ -331,7 +336,8 @@ public class MainClass extends PluginBase {
                     case "refreshworkload":
                         if(MainClass.wardens.size() > 0){
                             for (WardenData value : MainClass.wardens.values()) {
-                                value.setAccumulatedTimes(0);
+                                value.setDealBugReportTimes(0);
+                                value.setDealBypassReportTimes(0);
                                 value.save();
                             }
                         }
@@ -344,7 +350,7 @@ public class MainClass extends PluginBase {
                                 if(entry.getValue().getLevelType() == WardenLevelType.ADMIN){
                                     continue;
                                 }
-                                cacheMap.put(entry.getKey(), entry.getValue().getAccumulatedTimes());
+                                cacheMap.put(entry.getKey(), entry.getValue().getDealBugReportTimes()+entry.getValue().getDealBugReportTimes());
                             }
                             List<Map.Entry<String, Integer>> list = cacheMap.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getValue)).collect(Collectors.toList());
                             if(list.size() == 0){
