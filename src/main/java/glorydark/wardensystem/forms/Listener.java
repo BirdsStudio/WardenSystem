@@ -36,7 +36,9 @@ public class Listener implements cn.nukkit.event.Listener {
     public void PlayerQuitEvent(PlayerQuitEvent event){
         Player player = event.getPlayer();
         MainClass.offlineData.add(new OfflineData(player));
-        MainClass.log.log(Level.INFO, "操作员["+player.getName()+"退出服务器，飞行状态"+player.getAdventureSettings().get(AdventureSettings.Type.FLYING)+"，游戏模式："+player.getGamemode()+"！");
+        if(MainClass.wardens.containsKey(player.getName())) {
+            MainClass.log.log(Level.INFO, "操作员[" + player.getName() + "]退出服务器，飞行状态" + player.getAdventureSettings().get(AdventureSettings.Type.FLYING) + "，游戏模式：" + player.getGamemode() + "！");
+        }
     }
 
     @EventHandler
@@ -51,6 +53,11 @@ public class Listener implements cn.nukkit.event.Listener {
     
     @EventHandler
     public void PlayerJoinEvent(PlayerJoinEvent event){
+        // 重置出生点，防止出生点在地狱（生存服问题）
+        if(event.getPlayer().getSpawn().getLevel().getName().equals("nether")){
+            event.getPlayer().setSpawn(Server.getInstance().getDefaultLevel().getSpawnLocation());
+        }
+
         Player player = event.getPlayer();
         long bannedRemained = MainClass.getRemainedBannedTime(player.getName());
         if(bannedRemained != 0){
@@ -63,7 +70,7 @@ public class Listener implements cn.nukkit.event.Listener {
             return;
         }
         if(MainClass.wardens.containsKey(player.getName())){
-            MainClass.log.log(Level.INFO, "操作员["+player.getName()+"进入服务器！");
+            MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]进入服务器！");
             if(MainClass.bugReports.size() > 0){
                 player.sendMessage("§e目前有【§c"+MainClass.bugReports.size()+"§e】个bug反馈信息待处理！");
             }else{
@@ -101,8 +108,12 @@ public class Listener implements cn.nukkit.event.Listener {
     @EventHandler
     public void PlayerChatEvent(PlayerChatEvent event){
         if(MainClass.muted.contains(event.getPlayer().getName())){
-            event.getPlayer().sendMessage("§c您已被禁言，预计解封时间："+MainClass.getUnMutedDate(event.getPlayer()));
-            event.setCancelled(true);
+            if(MainClass.getRemainedMutedTime(event.getPlayer().getName()) == 0L){
+                MainClass.muted.remove(event.getPlayer().getName());
+            }else{
+                event.getPlayer().sendMessage("§c您已被禁言，预计解封时间："+MainClass.getUnMutedDate(event.getPlayer()));
+                event.setCancelled(true);
+            }
         }
     }
 
