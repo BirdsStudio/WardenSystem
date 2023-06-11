@@ -69,11 +69,13 @@ public class WardenData {
     }
 
     public void addDealBugReportTime() {
+        dealBugReportTimes+=1;
         config.set("deal_bug_report_times", config.getInt("deal_bug_report_times", 0) + 1);
         config.save();
     }
 
     public void addDealBypassReportTime() {
+        dealBypassReportTimes+=1;
         config.set("deal_bypass_report_times", config.getInt("deal_bypass_report_times", 0) + 1);
         config.save();
     }

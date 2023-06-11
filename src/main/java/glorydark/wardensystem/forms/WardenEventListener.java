@@ -239,7 +239,7 @@ public class WardenEventListener implements Listener {
                     return;
                 }
                 BugReport select = MainClass.bugReports.get(id);
-                if(MainClass.wardens.values().stream().anyMatch(wardenData -> wardenData.getDealing() == select)){
+                if(MainClass.wardens.entrySet().stream().anyMatch((s) -> !s.getKey().equals(player.getName()) && s.getValue().getDealing() == select)){
                     FormMain.showReportReturnMenu("该bug反馈已有人在处理！", player, FormType.DealBugReportReturn);
                     return;
                 }
@@ -253,7 +253,7 @@ public class WardenEventListener implements Listener {
                     return;
                 }
                 ByPassReport select1 = MainClass.byPassReports.get(id);
-                if(MainClass.wardens.values().stream().anyMatch(wardenData -> wardenData.getDealing() == select1)){
+                if(MainClass.wardens.entrySet().stream().anyMatch((s) -> !s.getKey().equals(player.getName()) && s.getValue().getDealing() == select1)){
                     FormMain.showReportReturnMenu("该举报已有人在处理！", player, FormType.DealByPassReportReturn);
                     return;
                 }
