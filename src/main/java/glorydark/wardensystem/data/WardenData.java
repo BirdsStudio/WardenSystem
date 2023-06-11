@@ -21,7 +21,7 @@ public class WardenData {
 
     public int accumulatedDealBypassReportTimes;
 
-    public int gamemode_before;
+    public int gamemodeBefore;
 
     public int vetoedTimes;
 
@@ -38,6 +38,7 @@ public class WardenData {
     public WardenLevelType levelType;
 
     public WardenData(Report dealing, Config config){
+        this.gamemodeBefore = 0;
         this.dealing = dealing;
         this.config = config;
         this.prefixes = new ArrayList<>(config.getStringList("prefixes"));

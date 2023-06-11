@@ -203,7 +203,11 @@ public class FormMain {
                 window.addButton(new ElementButton("切换至观察者模式"));
                 break;
             case 3:
-                window.addButton(new ElementButton("切换至生存模式"));
+                if (MainClass.wardens.get(player.getName()).getGamemodeBefore() == 0) {
+                    window.addButton(new ElementButton("切换至生存模式"));
+                } else {
+                    window.addButton(new ElementButton("切换至冒险模式"));
+                }
                 break;
         }
         window.addButton(new ElementButton(player.getAdventureSettings().get(AdventureSettings.Type.FLYING)? "关闭飞行":"开启飞行"));

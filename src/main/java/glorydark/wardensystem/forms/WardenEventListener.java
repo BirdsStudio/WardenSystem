@@ -199,11 +199,12 @@ public class WardenEventListener implements Listener {
                                 player.setGamemode(0);
                                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]切换至生存模式！");
                                 break;
-                            /* case "切换至创造模式":
-                                player.setGamemode(1);
+                            case "切换至冒险模式":
+                                player.setGamemode(2);
+                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]切换至冒险模式！");
                                 break;
-                             */
                             case "切换至观察者模式":
+                                MainClass.wardens.get(player.getName()).setGamemodeBefore(player.getGamemode());
                                 player.setGamemode(3);
                                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"切换至观察者模式");
                                 break;
