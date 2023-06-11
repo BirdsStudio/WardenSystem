@@ -160,7 +160,7 @@ public class FormMain {
                 onlinePlayers.add(p.getName());
             }
         }
-        ElementDropdown dropdown = new ElementDropdown("选择在线玩家（橙色为协管）");
+        ElementDropdown dropdown = new ElementDropdown("选择在线玩家（橙色为主管，黄色为协管）");
         dropdown.addOption("- 未选择 -");
         dropdown.getOptions().addAll(onlinePlayers);
         window.addElement(dropdown);
