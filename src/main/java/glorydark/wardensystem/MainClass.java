@@ -391,7 +391,7 @@ public class MainClass extends PluginBase {
                                 i++;
                             }
                             commandSender.sendMessage(builder.toString());
-                            log.log(Level.INFO, "CONSOLE执行结果：\n"+builder.toString());
+                            log.log(Level.INFO, "CONSOLE执行结果：\n"+ builder);
                         }
                         break;
                 }

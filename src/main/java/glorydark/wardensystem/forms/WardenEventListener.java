@@ -15,10 +15,7 @@ import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.utils.Config;
 import glorydark.wardensystem.MainClass;
-import glorydark.wardensystem.data.OfflineData;
-import glorydark.wardensystem.data.PlayerData;
-import glorydark.wardensystem.data.SuspectData;
-import glorydark.wardensystem.data.WardenData;
+import glorydark.wardensystem.data.*;
 import glorydark.wardensystem.reports.matters.BugReport;
 import glorydark.wardensystem.reports.matters.ByPassReport;
 
@@ -423,6 +420,7 @@ public class WardenEventListener implements Listener {
         switch (guiType){
             case WardenDealBugReport:
                 if(response == null){
+                    MainClass.wardens.get(player.getName()).dealing = null;
                     FormMain.showWardenReportList(player, FormType.WardenDealBugReportList);
                     return;
                 }
@@ -472,9 +470,11 @@ public class WardenEventListener implements Listener {
                 FormMain.showReportReturnMenu("处理成功", player, FormType.DealBugReportReturn);
                 MainClass.wardens.get(player.getName()).addDealBugReportTime();
                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理bug反馈完毕，具体信息详见：bugreports/"+saveName+".yml");
+                MainClass.wardens.get(player.getName()).dealing = null;
                 break;
             case WardenDealByPassReport:
                 if(response == null){
+                    MainClass.wardens.get(player.getName()).dealing = null;
                     FormMain.showWardenReportList(player, FormType.WardenDealByPassReportList);
                     return;
                 }
@@ -505,7 +505,8 @@ public class WardenEventListener implements Listener {
                     list1.add(map1);
                     config1.set("unclaimed", list1);
                     config1.save();
-                    FormMain.showWardenPunish(player, byPassReport.getSuspect());
+                    WardenData data = MainClass.wardens.get(byPassReport.getSuspect());
+                    FormMain.showWardenPunish(player, (data != null? (data.getLevelType() == WardenLevelType.ADMIN? "§6":"§e"):"")+byPassReport.getSuspect());
                 }else{
                     Config config = new Config(MainClass.path+"/mailbox/"+byPassReport.getPlayer()+".yml", Config.YAML);
                     List<Map<String, Object>> list = config.get("unclaimed", new ArrayList<>());
@@ -525,7 +526,8 @@ public class WardenEventListener implements Listener {
                 bypassFile.delete();
                 MainClass.byPassReports.remove(byPassReport);
                 MainClass.wardens.get(player.getName()).addDealBypassReportTime();
-                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理bug反馈完毕，具体信息详见：bypassreports/"+saveName1+".yml");
+                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理举报完毕，具体信息详见：bypassreports/"+saveName1+".yml");
+                MainClass.wardens.get(player.getName()).dealing = null;
                 break;
             case WardenPersonalInfo:
                 if(response == null){
@@ -639,6 +641,7 @@ public class WardenEventListener implements Listener {
                         if(dealtConfigPardon.exists(pardonedPn)) {
                             dealtConfigPardon.remove(pardonedPn);
                             dealtConfigPardon.save();
+                            player.sendMessage("成功解禁玩家[" + pardonedPn + "]");
                             MainClass.log.log(Level.INFO, "[" + player.getName() + "]成功解禁玩家[" + pardonedPn + "]，理由："+response.getInputResponse(2));
                         }else{
                             pardonedPlayer.sendMessage("§c该玩家未被封禁！");
@@ -666,16 +669,18 @@ public class WardenEventListener implements Listener {
                 }
                 String punishedPn;
                 if(response.getResponse(0) != null && response.getInputResponse(0).equals("")){
-                    punishedPn = response.getDropdownResponse(1).getElementContent().replace("§6", "");
+                    punishedPn = response.getDropdownResponse(1).getElementContent();
                 }else{
                     punishedPn = response.getInputResponse(0);
                 }
+                punishedPn = punishedPn.replace("§6", "");
                 if(punishedPn.equals("") || punishedPn.equals("- 未选择 -")){
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
+                    FormMain.showReportReturnMenu("§c您填写的信息不完整，不予提交，请重试！", player, FormType.WardenPunishReturn);
                     return;
                 }
                 if(!Server.getInstance().lookupName(punishedPn).isPresent()){
-                    FormMain.showReportReturnMenu("§c找不到玩家！", player, FormType.WardenModifyOperatorReturn);
+                    FormMain.showReportReturnMenu("§c找不到玩家！", player, FormType.WardenPunishReturn);
                     return;
                 }
                 Config config;
@@ -811,13 +816,13 @@ public class WardenEventListener implements Listener {
                 String pn = response.getInputResponse(0);
                 if(!pn.equals("")){
                     if(!Server.getInstance().lookupName(pn).isPresent()){
-                        FormMain.showReportReturnMenu("§c找不到玩家！", player, FormType.WardenModifyOperatorReturn);
+                        FormMain.showReportReturnMenu("§c找不到玩家！", player, FormType.AdminAddWardenReturn);
                         return;
                     }
                     config = new Config(MainClass.path+"/config.yml", Config.YAML);
                     List<String> wardens = new ArrayList<>(config.getStringList("wardens"));
                     if(wardens.contains(pn)){
-                        FormMain.showReportReturnMenu("§c该玩家已为协管！", player, FormType.WardenModifyOperatorReturn);
+                        FormMain.showReportReturnMenu("§c该玩家已为协管！", player, FormType.AdminAddWardenReturn);
                     }else{
                         wardens.add(pn);
                         config.set("wardens", wardens);
@@ -826,11 +831,11 @@ public class WardenEventListener implements Listener {
                         data.fixConfig();
                         MainClass.wardens.put(pn, data);
                         player.sendMessage("§a成功为赋予玩家【"+pn+"】协管权限！");
-                        FormMain.showReportReturnMenu("§a成功为赋予玩家【"+pn+"】协管权限！", player, FormType.WardenModifyOperatorReturn);
+                        FormMain.showReportReturnMenu("§a成功为赋予玩家【"+pn+"】协管权限！", player, FormType.AdminAddWardenReturn);
                         MainClass.log.log(Level.INFO, player.getName() + "为【"+pn+"】添加协管权限");
                     }
                 }else{
-                    FormMain.showReportReturnMenu("§c您未输入玩家名字！", player, FormType.WardenModifyOperatorReturn);
+                    FormMain.showReportReturnMenu("§c您未输入玩家名字！", player, FormType.AdminAddWardenReturn);
                 }
                 break;
             case AdminRemoveWarden:
@@ -842,11 +847,11 @@ public class WardenEventListener implements Listener {
                     pn = response.getInputResponse(1);
                 }
                 if(pn.equals("")){
-                    FormMain.showReportReturnMenu("§c您还未选择一个协管！", player, FormType.WardenModifyOperatorReturn);
+                    FormMain.showReportReturnMenu("§c您还未选择一个协管！", player, FormType.AdminRemoveWardenReturn);
                     return;
                 }
                 if(!Server.getInstance().lookupName(pn).isPresent()){
-                    FormMain.showReportReturnMenu("§c找不到玩家！", player, FormType.WardenModifyOperatorReturn);
+                    FormMain.showReportReturnMenu("§c找不到玩家！", player, FormType.AdminRemoveWardenReturn);
                     return;
                 }
                 Config config1 = new Config(MainClass.path +"/config.yml", Config.YAML);
@@ -857,10 +862,10 @@ public class WardenEventListener implements Listener {
                     config1.save();
                     MainClass.wardens.remove(pn);
                     player.sendMessage("§a成功取消玩家【"+pn+"】协管权限！");
-                    FormMain.showReportReturnMenu("§a成功取消玩家【"+pn+"】协管权限！", player, FormType.WardenModifyOperatorReturn);
+                    FormMain.showReportReturnMenu("§a成功取消玩家【"+pn+"】协管权限！", player, FormType.AdminRemoveWardenReturn);
                     MainClass.log.log(Level.INFO, player.getName() + "取消【"+pn+"】的协管权限");
                 }else{
-                    FormMain.showReportReturnMenu("§c该玩家不是协管！", player, FormType.WardenModifyOperatorReturn);
+                    FormMain.showReportReturnMenu("§c该玩家不是协管！", player, FormType.AdminRemoveWardenReturn);
                 }
                 break;
         }
@@ -868,26 +873,30 @@ public class WardenEventListener implements Listener {
 
     private void formWindowModalOnClick(Player player, FormWindowModal window, FormType guiType) {
         if(window.getResponse() == null){ return; }
+        if(window.getResponse().getClickedButtonId() != 0){
+            return;
+        }
         switch (guiType){
             case DealBugReportReturn:
-                if(window.getResponse().getClickedButtonId() == 0){
-                    FormMain.showWardenReportList(player, FormType.WardenDealBugReportList);
-                }
+                FormMain.showWardenReportList(player, FormType.WardenDealBugReportList);
                 break;
             case DealByPassReportReturn:
-                if(window.getResponse().getClickedButtonId() == 0){
-                    FormMain.showWardenReportList(player, FormType.WardenDealByPassReportList);
-                }
+                FormMain.showWardenReportList(player, FormType.WardenDealByPassReportList);
                 break;
             case WardenStatusCheckReturn:
-                if(window.getResponse().getClickedButtonId() == 0){
-                    FormMain.showWardenMain(player);
-                }
+                FormMain.showWardenMain(player);
                 break;
             case WardenModifyOperatorReturn:
-                if(window.getResponse().getClickedButtonId() == 0){
-                    FormMain.showAdminManage(player);
-                }
+                FormMain.showAdminManage(player);
+                break;
+            case AdminAddWardenReturn:
+                FormMain.showAddWarden(player);
+                break;
+            case AdminRemoveWardenReturn:
+                FormMain.showRemoveWarden(player);
+                break;
+            case WardenPunishReturn:
+                FormMain.showWardenPunish(player);
                 break;
         }
     }

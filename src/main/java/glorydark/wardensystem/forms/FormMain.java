@@ -237,8 +237,9 @@ public class FormMain {
     public static void showWardenByPassReport(Player player, ByPassReport report){
         FormWindowCustom window = new FormWindowCustom("协管系统 - 处理举报");
         window.addElement(new ElementLabel(report.anonymous? "* 反馈玩家要求匿名，故不公布玩家昵称！" : "反馈玩家："+report.player));
+        WardenData data = MainClass.wardens.get(report.getSuspect());
         window.addElement(new ElementLabel("事务信息："+report.info));
-        window.addElement(new ElementLabel("被举报者："+report.suspect));
+        window.addElement(new ElementLabel("被举报者："+(data == null? report.getSuspect():(data.getLevelType() == WardenLevelType.ADMIN? "§6"+report.getSuspect()+"（协管主管）":"§e"+report.getSuspect()+"（协管）"))));
         window.addElement(new ElementLabel("反馈时间："+ MainClass.getDate(report.millis)));
         List<String> options = new ArrayList<>();
         options.add("§a已核实");
