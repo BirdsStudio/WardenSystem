@@ -163,6 +163,10 @@ public class MainClass extends PluginBase {
                 switch (strings[0]){
                     case "admin":
                         if(strings.length < 2){ return true; }
+                        if(!Server.getInstance().lookupName(strings[1]).isPresent()){
+                            commandSender.sendMessage("§c找不到玩家！");
+                            return true;
+                        }
                         Config config = new Config(path+"/config.yml", Config.YAML);
                         List<String> admins = new ArrayList<>(config.getStringList("admins"));
                         if(admins.contains(strings[1])){
@@ -184,6 +188,10 @@ public class MainClass extends PluginBase {
                         break;
                     case "add":
                         if(strings.length < 2){ return true; }
+                        if(!Server.getInstance().lookupName(strings[1]).isPresent()){
+                            commandSender.sendMessage("§c找不到玩家！");
+                            return true;
+                        }
                         config = new Config(path+"/config.yml", Config.YAML);
                         wardens = new ArrayList<>(config.getStringList("wardens"));
                         if(wardens.contains(strings[1])){
@@ -201,6 +209,10 @@ public class MainClass extends PluginBase {
                         break;
                     case "remove":
                         if(strings.length < 2){ return true; }
+                        if(!Server.getInstance().lookupName(strings[1]).isPresent()){
+                            commandSender.sendMessage("§c找不到玩家！");
+                            return true;
+                        }
                         Config config1 = new Config(path+"/config.yml", Config.YAML);
                         List<String> wardens1 = new ArrayList<>(config1.getStringList("wardens"));
                         if(wardens1.contains(strings[1])){
@@ -216,6 +228,10 @@ public class MainClass extends PluginBase {
                         break;
                     case "ban":
                         if(strings.length < 2){ return true; }
+                        if(!Server.getInstance().lookupName(strings[1]).isPresent()){
+                            commandSender.sendMessage("§c找不到玩家！");
+                            return true;
+                        }
                         Config banCfg = new Config(path+"/ban.yml", Config.YAML);
                         List<String> banned = new ArrayList<>(banCfg.getKeys(false));
                         if(banned.contains(strings[1])){
@@ -256,6 +272,10 @@ public class MainClass extends PluginBase {
                         break;
                     case "mute":
                         if(strings.length < 2){ return true; }
+                        if(!Server.getInstance().lookupName(strings[1]).isPresent()){
+                            commandSender.sendMessage("§c找不到玩家！");
+                            return true;
+                        }
                         Config muteCfg = new Config(path+"/mute.yml", Config.YAML);
                         List<String> muted = new ArrayList<>(muteCfg.getKeys(false));
                         if(muted.contains(strings[1])){
@@ -380,14 +400,14 @@ public class MainClass extends PluginBase {
         }
     }
 
-    public static String getUnBannedDate(Player player){
+    public static String getUnBannedDate(String player){
         Config config = new Config(path+"/ban.yml", Config.YAML);
-        return !String.valueOf(config.get(player.getName()+".end", "")).equals("permanent")? MainClass.getDate(config.getLong(player.getName()+".end")): "永久封禁";
+        return !String.valueOf(config.get(player+".end", "")).equals("permanent")? MainClass.getDate(config.getLong(player+".end")): "永久封禁";
     }
 
-    public static String getUnMutedDate(Player player){
+    public static String getUnMutedDate(String player){
         Config config = new Config(path+"/mute.yml", Config.YAML);
-        return !String.valueOf(config.get(player.getName()+".end", "")).equals("permanent")? MainClass.getDate(config.getLong(player.getName()+".end")): "永久封禁";
+        return !String.valueOf(config.get(player+".end", "")).equals("permanent")? MainClass.getDate(config.getLong(player+".end")): "永久封禁";
     }
 
     public static long getRemainedBannedTime(String player){

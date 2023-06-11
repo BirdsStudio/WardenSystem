@@ -62,12 +62,12 @@ public class WardenEventListener implements Listener {
         Player player = event.getPlayer();
         long bannedRemained = MainClass.getRemainedBannedTime(player.getName());
         if(bannedRemained != 0){
-            player.kick("§c您已被封禁\n§e解封时间："+MainClass.getUnBannedDate(player));
+            player.kick("§c您已被封禁\n§e解封时间："+MainClass.getUnBannedDate(player.getName()));
             return;
         }
         long mutedRemained = MainClass.getRemainedMutedTime(player.getName());
         if(mutedRemained != 0){
-            player.sendMessage("§c您已被禁言\n§e解封时间："+MainClass.getUnMutedDate(player));
+            player.sendMessage("§c您已被禁言\n§e解封时间："+MainClass.getUnMutedDate(player.getName()));
             return;
         }
         if(MainClass.wardens.containsKey(player.getName())){
@@ -112,7 +112,7 @@ public class WardenEventListener implements Listener {
             if(MainClass.getRemainedMutedTime(event.getPlayer().getName()) == 0L){
                 MainClass.muted.remove(event.getPlayer().getName());
             }else{
-                event.getPlayer().sendMessage("§c您已被禁言，预计解封时间："+MainClass.getUnMutedDate(event.getPlayer()));
+                event.getPlayer().sendMessage("§c您已被禁言，预计解封时间："+MainClass.getUnMutedDate(event.getPlayer().getName()));
                 event.setCancelled(true);
             }
         }
@@ -673,11 +673,10 @@ public class WardenEventListener implements Listener {
                 if(punishedPn.equals("") || punishedPn.equals("- 未选择 -")){
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
                     return;
-                }else{
-                    if(!Server.getInstance().lookupName(punishedPn).isPresent()){
-                        player.sendMessage("§c玩家"+punishedPn+"不存在于服务器！");
-                        return;
-                    }
+                }
+                if(!Server.getInstance().lookupName(punishedPn).isPresent()){
+                    FormMain.showReportReturnMenu("§c找不到玩家！", player, FormType.WardenModifyOperatorReturn);
+                    return;
                 }
                 Config config;
                 Player punished = Server.getInstance().getPlayer(punishedPn);
@@ -701,6 +700,7 @@ public class WardenEventListener implements Listener {
                         config.set(punishedPn+".operator", player.getName());
                         config.set(punishedPn+".reason", response.getInputResponse(10));
                         config.save();
+                        player.sendMessage("成功封禁玩家["+punishedPn+"]，解封日期:"+MainClass.getUnBannedDate(punishedPn));
                         MainClass.log.log(Level.INFO, "["+player.getName()+"]成功封禁玩家["+punishedPn+"]");
                         if(punished != null){
                             punished.kick("您已被封禁!");
@@ -728,6 +728,7 @@ public class WardenEventListener implements Listener {
                             config.set(punishedPn+".reason", response.getInputResponse(10));
                             config.save();
                             punished.sendMessage("您已被禁言!");
+                            player.sendMessage("成功禁言玩家["+punishedPn+"]，解封日期:"+MainClass.getUnMutedDate(punishedPn));
                             MainClass.muted.add(punishedPn);
                         }
                         break;
@@ -735,6 +736,7 @@ public class WardenEventListener implements Listener {
                         if(punished != null){
                             punished.sendMessage("§c您已被警告，请规范您的游戏行为！");
                             player.sendMessage("§a警告已发送！");
+                            player.sendMessage("成功警告玩家["+punishedPn+"]");
                             MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用警告功能，警告玩家"+punishedPn+"！");
                         }else{
                             player.sendMessage("§c该玩家不在线或不存在！");
@@ -744,6 +746,7 @@ public class WardenEventListener implements Listener {
                         if(punished != null){
                             punished.sendMessage("§c您已被踢出，请规范您的游戏行为！");
                             player.sendMessage("§a警告已发送！");
+                            player.sendMessage("成功踢出玩家["+punishedPn+"]");
                             MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用警告功能，警告玩家"+punishedPn+"！");
                         }else{
                             player.sendMessage("§c该玩家不在线或不存在！");
@@ -751,7 +754,6 @@ public class WardenEventListener implements Listener {
                         break;
                     case 4:
                         config = new Config(MainClass.path + "/suspects.yml", Config.YAML);
-                        MainClass.log.log(Level.INFO, "["+player.getName()+"]成功添加嫌疑玩家["+punishedPn+"]");
                         if(punished != null){
                             Calendar calendar = new Calendar.Builder().setInstant(System.currentTimeMillis()).build();
                             calendar.add(Calendar.DATE, 7);
@@ -761,7 +763,9 @@ public class WardenEventListener implements Listener {
                             config.set(punishedPn+".operator", player.getName());
                             config.set(punishedPn+".reason", response.getInputResponse(10));
                             config.save();
+                            player.sendMessage("成功将玩家["+punishedPn+"]列入嫌疑名单！");
                             punished.sendMessage("您已被列入嫌疑玩家，请端正您的游戏行为。");
+                            MainClass.log.log(Level.INFO, "["+player.getName()+"]成功添加嫌疑玩家["+punishedPn+"]");
                         }
                         break;
                 }
@@ -806,6 +810,10 @@ public class WardenEventListener implements Listener {
                 }
                 String pn = response.getInputResponse(0);
                 if(!pn.equals("")){
+                    if(!Server.getInstance().lookupName(pn).isPresent()){
+                        FormMain.showReportReturnMenu("§c找不到玩家！", player, FormType.WardenModifyOperatorReturn);
+                        return;
+                    }
                     config = new Config(MainClass.path+"/config.yml", Config.YAML);
                     List<String> wardens = new ArrayList<>(config.getStringList("wardens"));
                     if(wardens.contains(pn)){
@@ -817,6 +825,7 @@ public class WardenEventListener implements Listener {
                         data = new WardenData(null, new Config(MainClass.path+"/wardens/"+pn+".yml", Config.YAML));
                         data.fixConfig();
                         MainClass.wardens.put(pn, data);
+                        player.sendMessage("§a成功为赋予玩家【"+pn+"】协管权限！");
                         FormMain.showReportReturnMenu("§a成功为赋予玩家【"+pn+"】协管权限！", player, FormType.WardenModifyOperatorReturn);
                         MainClass.log.log(Level.INFO, player.getName() + "为【"+pn+"】添加协管权限");
                     }
@@ -836,6 +845,10 @@ public class WardenEventListener implements Listener {
                     FormMain.showReportReturnMenu("§c您还未选择一个协管！", player, FormType.WardenModifyOperatorReturn);
                     return;
                 }
+                if(!Server.getInstance().lookupName(pn).isPresent()){
+                    FormMain.showReportReturnMenu("§c找不到玩家！", player, FormType.WardenModifyOperatorReturn);
+                    return;
+                }
                 Config config1 = new Config(MainClass.path +"/config.yml", Config.YAML);
                 List<String> wardens1 = new ArrayList<>(config1.getStringList("wardens"));
                 if(wardens1.contains(pn)){
@@ -843,6 +856,7 @@ public class WardenEventListener implements Listener {
                     config1.set("wardens", wardens1);
                     config1.save();
                     MainClass.wardens.remove(pn);
+                    player.sendMessage("§a成功取消玩家【"+pn+"】协管权限！");
                     FormMain.showReportReturnMenu("§a成功取消玩家【"+pn+"】协管权限！", player, FormType.WardenModifyOperatorReturn);
                     MainClass.log.log(Level.INFO, player.getName() + "取消【"+pn+"】的协管权限");
                 }else{
