@@ -709,6 +709,7 @@ public class WardenEventListener implements Listener {
                         config.save();
                         player.sendMessage("成功封禁玩家["+punishedPn+"]，解封日期:"+MainClass.getUnBannedDate(punishedPn));
                         MainClass.log.log(Level.INFO, "["+player.getName()+"]成功封禁玩家["+punishedPn+"]");
+                        Server.getInstance().broadcastMessage("§e["+punishedPn+"] 因游戏作弊被打入小黑屋！");
                         if(punished != null){
                             punished.kick("您已被封禁!");
                         }
@@ -736,15 +737,16 @@ public class WardenEventListener implements Listener {
                             config.save();
                             punished.sendMessage("您已被禁言!");
                             player.sendMessage("成功禁言玩家["+punishedPn+"]，解封日期:"+MainClass.getUnMutedDate(punishedPn));
+                            Server.getInstance().broadcastMessage("§e["+punishedPn+"] 因违规发言被禁止发言！");
                             MainClass.muted.add(punishedPn);
                         }
                         break;
                     case 2:
                         if(punished != null){
                             punished.sendMessage("§c您已被警告，请规范您的游戏行为！");
-                            player.sendMessage("§a警告已发送！");
                             player.sendMessage("成功警告玩家["+punishedPn+"]");
                             MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用警告功能，警告玩家"+punishedPn+"！");
+                            Server.getInstance().broadcastMessage("§e["+punishedPn+"] 疑似作弊被警告！");
                         }else{
                             player.sendMessage("§c该玩家不在线或不存在！");
                         }
@@ -752,9 +754,9 @@ public class WardenEventListener implements Listener {
                     case 3:
                         if(punished != null){
                             punished.sendMessage("§c您已被踢出，请规范您的游戏行为！");
-                            player.sendMessage("§a警告已发送！");
                             player.sendMessage("成功踢出玩家["+punishedPn+"]");
-                            MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用警告功能，警告玩家"+punishedPn+"！");
+                            MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用踢出功能，踢出玩家"+punishedPn+"！");
+                            Server.getInstance().broadcastMessage("§e["+punishedPn+"] 被踢出游戏！");
                         }else{
                             player.sendMessage("§c该玩家不在线或不存在！");
                         }
@@ -772,6 +774,7 @@ public class WardenEventListener implements Listener {
                             config.save();
                             player.sendMessage("成功将玩家["+punishedPn+"]列入嫌疑名单！");
                             punished.sendMessage("您已被列入嫌疑玩家，请端正您的游戏行为。");
+                            Server.getInstance().broadcastMessage("§e["+punishedPn+"] 因疑似游戏作弊被加入嫌疑玩家名单！");
                             MainClass.log.log(Level.INFO, "["+player.getName()+"]成功添加嫌疑玩家["+punishedPn+"]");
                         }
                         break;

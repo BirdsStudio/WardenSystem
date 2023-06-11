@@ -250,8 +250,7 @@ public class MainClass extends PluginBase {
                                 punished.kick("您已被封禁");
                             }
                             // 向所有在线玩家广播封禁消息
-                            String message = "§c玩家 " + strings[1] + " 被封禁了！";
-                            Server.getInstance().broadcastMessage(message);
+                            Server.getInstance().broadcastMessage("§e["+strings[1]+"] 因游戏作弊被打入小黑屋！");
                         }
                         break;
                     case "unban":
@@ -293,6 +292,7 @@ public class MainClass extends PluginBase {
                                 punished.sendMessage("您已被禁言");
                             }
                             log.log(Level.INFO, "CONSOLE执行：/warden mute "+strings[1]);
+                            Server.getInstance().broadcastMessage("§e["+strings[1]+"] 因违规发言被禁止发言！");
                         }
                         break;
                     case "unmute":
