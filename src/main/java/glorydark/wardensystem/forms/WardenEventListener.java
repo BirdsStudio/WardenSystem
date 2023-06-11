@@ -673,7 +673,7 @@ public class WardenEventListener implements Listener {
                 }else{
                     punishedPn = response.getInputResponse(0);
                 }
-                punishedPn = punishedPn.replace("§6", "");
+                punishedPn = punishedPn.replace("§6", "").replace("§e", "");
                 if(punishedPn.equals("") || punishedPn.equals("- 未选择 -")){
                     player.sendMessage("§c您填写的信息不完整，不予提交，请重试！");
                     FormMain.showReportReturnMenu("§c您填写的信息不完整，不予提交，请重试！", player, FormType.WardenPunishReturn);
@@ -828,7 +828,6 @@ public class WardenEventListener implements Listener {
                         config.set("wardens", wardens);
                         config.save();
                         data = new WardenData(null, new Config(MainClass.path+"/wardens/"+pn+".yml", Config.YAML));
-                        data.fixConfig();
                         MainClass.wardens.put(pn, data);
                         player.sendMessage("§a成功为赋予玩家【"+pn+"】协管权限！");
                         FormMain.showReportReturnMenu("§a成功为赋予玩家【"+pn+"】协管权限！", player, FormType.AdminAddWardenReturn);

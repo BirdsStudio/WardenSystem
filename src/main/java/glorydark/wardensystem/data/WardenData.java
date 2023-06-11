@@ -17,6 +17,12 @@ public class WardenData {
 
     public int dealBypassReportTimes;
 
+    public int accumulatedDealBugReportTimes;
+
+    public int accumulatedDealBypassReportTimes;
+
+    public int gamemode_before;
+
     public int vetoedTimes;
 
     public int allGradesFromPlayers;
@@ -37,13 +43,19 @@ public class WardenData {
         this.prefixes = new ArrayList<>(config.getStringList("prefixes"));
         this.dealBugReportTimes = config.getInt("deal_bug_report_times", 0);
         this.dealBypassReportTimes = config.getInt("deal_bypass_report_times", 0);
+        this.accumulatedDealBugReportTimes = config.getInt("accumulated_deal_bug_report_times", dealBugReportTimes);
+        this.accumulatedDealBypassReportTimes = config.getInt("accumulated_deal_bypass_report_times", dealBypassReportTimes);
         this.vetoedTimes = config.getInt("vetoed_times", 0);
         this.allGradesFromPlayers = config.getInt("all_grades_from_players", 5);
         this.gradePlayerCounts = config.getInt("grade_player_counts", 0);
         this.joinTime = MainClass.getDate(config.getLong("join_time"));
+        this.fixConfig();
     }
 
-    public void fixConfig(){
+    protected void fixConfig(){
+        if(config.exists("accumulated_times")){ // 老版本修复
+            config.remove("accumulated_times");
+        }
         if(!config.exists("prefixes")){
             config.set("prefixes", new ArrayList<>());
         }
@@ -52,6 +64,12 @@ public class WardenData {
         }
         if(!config.exists("deal_bypass_report_times")){
             config.set("deal_bypass_report_times", 0);
+        }
+        if(!config.exists("accumulated_deal_bug_report_times")){
+            config.set("accumulated_deal_bug_report_times", 0);
+        }
+        if(!config.exists("accumulated_deal_bypass_report_times")){
+            config.set("accumulated_deal_bypass_report_times", 0);
         }
         if(!config.exists("vetoed_times")){
             config.set("vetoed_times", 0);
@@ -70,13 +88,17 @@ public class WardenData {
 
     public void addDealBugReportTime() {
         dealBugReportTimes+=1;
+        accumulatedDealBugReportTimes+=1;
         config.set("deal_bug_report_times", config.getInt("deal_bug_report_times", 0) + 1);
+        config.set("accumulated_deal_bug_report_times", config.getInt("accumulated_deal_bug_report_times", 0) + 1);
         config.save();
     }
 
     public void addDealBypassReportTime() {
         dealBypassReportTimes+=1;
+        accumulatedDealBypassReportTimes+=1;
         config.set("deal_bypass_report_times", config.getInt("deal_bypass_report_times", 0) + 1);
+        config.set("accumulated_deal_bypass_report_times", config.getInt("accumulated_deal_bypass_report_times", 0) + 1);
         config.save();
     }
 

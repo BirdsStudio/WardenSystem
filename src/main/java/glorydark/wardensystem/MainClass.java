@@ -76,7 +76,6 @@ public class MainClass extends PluginBase {
         for(String player: new ArrayList<>(config.getStringList("admins"))){
             WardenData data = new WardenData(null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
             data.setLevelType(WardenLevelType.ADMIN);
-            data.fixConfig();
             wardens.put(player, data);
         }
         for(String player: new ArrayList<>(config.getStringList("wardens"))){
@@ -85,7 +84,6 @@ public class MainClass extends PluginBase {
             }
             WardenData data = new WardenData(null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
             data.setLevelType(WardenLevelType.NORMAL);
-            data.fixConfig();
             wardens.put(player, data);
         }
         for(File file: Objects.requireNonNull(new File(path + "/bugreports/").listFiles())){
@@ -201,7 +199,6 @@ public class MainClass extends PluginBase {
                             config.set("wardens", wardens);
                             config.save();
                             WardenData data = new WardenData(null, new Config(path+"/wardens/"+strings[1]+".yml", Config.YAML));
-                            data.fixConfig();
                             MainClass.wardens.put(strings[1], data);
                             commandSender.sendMessage("§a成功为玩家【"+strings[1]+"】赋予协管权限！");
                             log.log(Level.INFO, "CONSOLE执行：/warden add "+strings[1]);
