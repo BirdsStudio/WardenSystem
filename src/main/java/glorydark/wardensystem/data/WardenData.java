@@ -50,13 +50,16 @@ public class WardenData {
         this.allGradesFromPlayers = config.getInt("all_grades_from_players", 5);
         this.gradePlayerCounts = config.getInt("grade_player_counts", 0);
         this.joinTime = MainClass.getDate(config.getLong("join_time"));
+        if(this.dealBypassReportTimes > this.accumulatedDealBypassReportTimes){
+            this.accumulatedDealBypassReportTimes = this.dealBypassReportTimes;
+        }
+        if(this.dealBugReportTimes > this.accumulatedDealBugReportTimes){
+            this.accumulatedDealBugReportTimes = this.dealBugReportTimes;
+        }
         this.fixConfig();
     }
 
     protected void fixConfig(){
-        if(config.exists("accumulated_times")){ // 老版本修复
-            config.remove("accumulated_times");
-        }
         if(!config.exists("prefixes")){
             config.set("prefixes", new ArrayList<>());
         }

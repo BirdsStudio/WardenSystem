@@ -35,6 +35,7 @@ public class WardenEventListener implements Listener {
         Player player = event.getPlayer();
         MainClass.offlineData.add(new OfflineData(player));
         if(MainClass.wardens.containsKey(player.getName())) {
+            MainClass.wardens.get(player.getName()).setDealing(null);
             MainClass.log.log(Level.INFO, "操作员[" + player.getName() + "]退出服务器，飞行状态" + player.getAdventureSettings().get(AdventureSettings.Type.FLYING) + "，游戏模式：" + player.getGamemode() + "！");
         }
     }
@@ -241,7 +242,7 @@ public class WardenEventListener implements Listener {
                     FormMain.showReportReturnMenu("该bug反馈已有人在处理！", player, FormType.DealBugReportReturn);
                     return;
                 }
-                MainClass.wardens.get(player.getName()).dealing = select;
+                MainClass.wardens.get(player.getName()).setDealing(select);
                 FormMain.showWardenBugReport(player, select);
                 break;
             case WardenDealByPassReportList:
@@ -255,7 +256,7 @@ public class WardenEventListener implements Listener {
                     FormMain.showReportReturnMenu("该举报已有人在处理！", player, FormType.DealByPassReportReturn);
                     return;
                 }
-                MainClass.wardens.get(player.getName()).dealing = select1;
+                MainClass.wardens.get(player.getName()).setDealing(select1);
                 FormMain.showWardenByPassReport(player, select1);
                 break;
             case WardenDealReportMain:
@@ -421,11 +422,11 @@ public class WardenEventListener implements Listener {
         switch (guiType){
             case WardenDealBugReport:
                 if(response == null){
-                    MainClass.wardens.get(player.getName()).dealing = null;
+                    MainClass.wardens.get(player.getName()).setDealing(null);
                     FormMain.showWardenReportList(player, FormType.WardenDealBugReportList);
                     return;
                 }
-                BugReport bugReport = (BugReport) MainClass.wardens.get(player.getName()).dealing;
+                BugReport bugReport = (BugReport) MainClass.wardens.get(player.getName()).getDealing();
                 File bugFile = new File(MainClass.path+"/bugreports/"+bugReport.getMillis()+".yml");
                 String saveName = MainClass.getUltraPrecisionDate(System.currentTimeMillis());
                 Config bugConfig = new Config(MainClass.path+"/bugreports/old/"+saveName+".yml", Config.YAML);
@@ -471,15 +472,15 @@ public class WardenEventListener implements Listener {
                 FormMain.showReportReturnMenu("处理成功", player, FormType.DealBugReportReturn);
                 MainClass.wardens.get(player.getName()).addDealBugReportTime();
                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理bug反馈完毕，具体信息详见：bugreports/"+saveName+".yml");
-                MainClass.wardens.get(player.getName()).dealing = null;
+                MainClass.wardens.get(player.getName()).setDealing(null);
                 break;
             case WardenDealByPassReport:
                 if(response == null){
-                    MainClass.wardens.get(player.getName()).dealing = null;
+                    MainClass.wardens.get(player.getName()).setDealing(null);
                     FormMain.showWardenReportList(player, FormType.WardenDealByPassReportList);
                     return;
                 }
-                ByPassReport byPassReport = (ByPassReport) MainClass.wardens.get(player.getName()).dealing;
+                ByPassReport byPassReport = (ByPassReport) MainClass.wardens.get(player.getName()).getDealing();
                 File bypassFile = new File(MainClass.path+"/bypassreports/"+byPassReport.getMillis()+".yml");
                 String saveName1 = MainClass.getUltraPrecisionDate(System.currentTimeMillis());
                 Config bypassConfig = new Config(MainClass.path+"/bypassreports/old/"+saveName1+".yml", Config.YAML);
@@ -528,7 +529,7 @@ public class WardenEventListener implements Listener {
                 MainClass.byPassReports.remove(byPassReport);
                 MainClass.wardens.get(player.getName()).addDealBypassReportTime();
                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]处理举报完毕，具体信息详见：bypassreports/"+saveName1+".yml");
-                MainClass.wardens.get(player.getName()).dealing = null;
+                MainClass.wardens.get(player.getName()).setDealing(null);
                 break;
             case WardenPersonalInfo:
                 if(response == null){

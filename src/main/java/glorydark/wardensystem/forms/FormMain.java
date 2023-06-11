@@ -31,6 +31,7 @@ public class FormMain {
         if(data == null){
             return;
         }
+        MainClass.wardens.get(player.getName()).setDealing(null);
         FormWindowSimple window = new FormWindowSimple("协管系统","您好，【"+(data.getLevelType()==WardenLevelType.ADMIN? "协管主管": "协管员")+"】"+player.getName()+"！");
         window.addButton(new ElementButton("处理事务"));
         window.addButton(new ElementButton("处罚系统"));
