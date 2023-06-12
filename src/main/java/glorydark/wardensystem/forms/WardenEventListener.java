@@ -251,7 +251,7 @@ public class WardenEventListener implements Listener {
                             case "切换至观察者模式":
                                 MainClass.wardens.get(player.getName()).setGamemodeBefore(player.getGamemode());
                                 player.setGamemode(3);
-                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"切换至观察者模式");
+                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]切换至观察者模式");
                                 break;
                         }
                         break;
@@ -259,11 +259,11 @@ public class WardenEventListener implements Listener {
                         switch (window.getResponse().getClickedButton().getText()){
                             case "开启飞行":
                                 this.setFlying(player, true);
-                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"开启飞行！");
+                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]开启飞行！");
                                 break;
                             case "关闭飞行":
                                 this.setFlying(player, false);
-                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"关闭飞行！");
+                                MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]关闭飞行！");
                                 break;
                         }
                         break;

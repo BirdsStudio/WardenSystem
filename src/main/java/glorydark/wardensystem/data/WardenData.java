@@ -56,6 +56,7 @@ public class WardenData {
         if(this.dealBugReportTimes > this.accumulatedDealBugReportTimes){
             this.accumulatedDealBugReportTimes = this.dealBugReportTimes;
         }
+        this.save();
         this.fixConfig();
     }
 
