@@ -11,31 +11,31 @@ import java.util.List;
 @Data
 public class WardenData {
 
-    public Report dealing; //处理事务类型
+    private Report dealing; //处理事务类型
 
-    public int dealBugReportTimes;
+    private int dealBugReportTimes;
 
-    public int dealBypassReportTimes;
+    private int dealBypassReportTimes;
 
-    public int accumulatedDealBugReportTimes;
+    private int accumulatedDealBugReportTimes;
 
-    public int accumulatedDealBypassReportTimes;
+    private int accumulatedDealBypassReportTimes;
 
-    public int gamemodeBefore;
+    private int gamemodeBefore;
 
-    public int vetoedTimes;
+    private int vetoedTimes;
 
-    public int allGradesFromPlayers;
+    private int allGradesFromPlayers;
 
-    public int gradePlayerCounts;
+    private int gradePlayerCounts;
 
-    public List<String> prefixes;
+    private List<String> prefixes;
 
-    public Config config;
+    private Config config;
 
-    public String joinTime;
+    private String joinTime;
 
-    public WardenLevelType levelType;
+    private WardenLevelType levelType;
 
     public WardenData(Report dealing, Config config){
         this.gamemodeBefore = 0;

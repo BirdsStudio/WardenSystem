@@ -32,6 +32,15 @@ public class WardenEventListener implements Listener {
         UI_CACHE.computeIfAbsent(player, i -> new HashMap<>()).put(player.showFormWindow(window), guiType);
     }
 
+    //修复协管飞行状态下饥饿下降的bug
+    @EventHandler
+    public void PlayerFoodLevelChangeEvent(PlayerFoodLevelChangeEvent event){
+        Player player = event.getPlayer();
+        if(player.getGamemode() == 0 && player.getAdventureSettings().get(AdventureSettings.Type.ALLOW_FLIGHT)){
+            player.getFoodData().setLevel(20, 20.0F);
+        }
+    }
+
     // 防止协管切生存破坏
     @EventHandler
     public void BlockBreakEvent(BlockBreakEvent event){
@@ -99,6 +108,7 @@ public class WardenEventListener implements Listener {
         }
         if(MainClass.wardens.containsKey(player.getName())){
             MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]进入服务器！");
+            this.setFlying(player, false);
             if(MainClass.bugReports.size() > 0){
                 player.sendMessage("§e目前有【§c"+MainClass.bugReports.size()+"§e】个bug反馈信息待处理！");
             }else{
@@ -584,7 +594,7 @@ public class WardenEventListener implements Listener {
                                 newRank.add(prefix);
                             }
                         }
-                        Config personalConfig = data.config;
+                        Config personalConfig = data.getConfig();
                         personalConfig.set("prefixes", newRank);
                         personalConfig.save();
                         data.setPrefixes(newRank);

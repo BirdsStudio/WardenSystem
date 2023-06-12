@@ -3,4 +3,5 @@ admins:
   - "OrthoRelic17176"
 wardens:
   - "BizarreDark"
-forbid_modify_worlds: []
+forbid_modify_worlds:
+  - world

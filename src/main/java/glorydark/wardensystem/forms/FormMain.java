@@ -211,7 +211,7 @@ public class FormMain {
                 }
                 break;
         }
-        window.addButton(new ElementButton(player.getAdventureSettings().get(AdventureSettings.Type.FLYING)? "关闭飞行":"开启飞行"));
+        window.addButton(new ElementButton(player.getAdventureSettings().get(AdventureSettings.Type.ALLOW_FLIGHT)? "关闭飞行":"开启飞行"));
         window.addButton(new ElementButton("查询最近数据"));
         window.addButton(new ElementButton("返回"));
         WardenEventListener.showFormWindow(player, window, FormType.WardenTools);
@@ -304,7 +304,7 @@ public class FormMain {
         window.addElement(new ElementLabel("玩家名："+(data.getPrefixes().size()>0? "【" + data.getPrefixes().get(0)+"§f】": "")+player.getName()));
         DecimalFormat format = new DecimalFormat("#.##");
         //to do: 评分正确率目前得从后台更改
-        window.addElement(new ElementLabel("玩家评分："+(data.getGradePlayerCounts() > 0? format.format(new BigDecimal(data.allGradesFromPlayers).divide(new BigDecimal(data.gradePlayerCounts), 2, RoundingMode.HALF_UP)) +" / 5.0": 5.0 +" / 5.0")));
+        window.addElement(new ElementLabel("玩家评分："+(data.getGradePlayerCounts() > 0? format.format(new BigDecimal(data.getAllGradesFromPlayers()).divide(new BigDecimal(data.getGradePlayerCounts()), 2, RoundingMode.HALF_UP)) +" / 5.0": 5.0 +" / 5.0")));
         //window.addElement(new ElementLabel("正确率："+((data.getDeal_bypass_report_times()) > 0? (format.format(new BigDecimal("1.0").subtract(new BigDecimal(data.vetoedTimes).divide(new BigDecimal(data.accumulatedTimes), 4, RoundingMode.HALF_UP)).multiply(new BigDecimal(100))) + "%%"): "100%%")));
         window.addElement(new ElementLabel("当月处理bug反馈数："+data.getDealBugReportTimes() + "\n当月处理举报数：" + data.getDealBypassReportTimes() + "\n累计处理bug反馈数："+data.getAccumulatedDealBugReportTimes()+"\n累计处理举报数："+data.getAccumulatedDealBypassReportTimes())); // To do
         window.addElement(new ElementLabel("入职时间："+ data.getJoinTime()));
