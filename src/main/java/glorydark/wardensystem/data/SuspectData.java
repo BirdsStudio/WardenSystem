@@ -26,15 +26,17 @@ public class SuspectData {
         });
     }
 
-    public void checkExpired(){
+    public boolean checkExpired(){
         if(endMillis == -1){
-            return;
+            return true;
         }
         if(System.currentTimeMillis() >= endMillis){
             Config suspects = new Config(MainClass.path+"/suspects.yml", Config.YAML);
             suspects.remove(name);
             suspects.save();
+            return false;
         }
+        return true;
     }
 
 }

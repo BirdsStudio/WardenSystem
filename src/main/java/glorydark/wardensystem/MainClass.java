@@ -109,9 +109,15 @@ public class MainClass extends PluginBase {
         }
         muted.addAll(new ArrayList<>(new Config(path + "/mute.yml", Config.YAML).getKeys(false)));
         Config suspects = new Config(path+"/suspects.yml", Config.YAML);
-        for(String s: suspects.getKeys(false)){
-            suspectList.put(s, new SuspectData(s, suspects.getLong(s +".start"), suspects.getLong(s +".end")));
+        for(String s: new ArrayList<>(suspects.getKeys(false))){
+            long end = suspects.getLong(s +".end");
+            if(System.currentTimeMillis() >= end){
+                suspects.remove(s);
+                continue;
+            }
+            suspectList.put(s, new SuspectData(s, suspects.getLong(s +".start"), end));
         }
+        suspects.save();
         Config rewardCfg = new Config(path+"/rewards.yml", Config.YAML);
         rewards.put("无奖励", new Reward(new ConfigSection()));
         for(String key: rewardCfg.getKeys(false)){

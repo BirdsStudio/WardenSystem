@@ -37,6 +37,9 @@ public class WardenEventListener implements Listener {
     public void BlockBreakEvent(BlockBreakEvent event){
         Player player = event.getPlayer();
         if(MainClass.wardens.containsKey(player.getName())){
+            if(player.getGamemode() == 1){
+                return;
+            }
             if(MainClass.forbid_modify_worlds.contains(player.getLevel().getName())){
                 event.setCancelled(true);
             }
@@ -47,6 +50,9 @@ public class WardenEventListener implements Listener {
     public void BlockPlaceEvent(BlockPlaceEvent event){
         Player player = event.getPlayer();
         if(MainClass.wardens.containsKey(player.getName())){
+            if(player.getGamemode() == 1){
+                return;
+            }
             if(MainClass.forbid_modify_worlds.contains(player.getLevel().getName())){
                 event.setCancelled(true);
             }
@@ -115,7 +121,12 @@ public class WardenEventListener implements Listener {
             }
         }
         if(MainClass.suspectList.containsKey(player.getName())){
-            player.sendMessage("§c您已被列为嫌疑玩家，请端正游戏行为！");
+            if(MainClass.suspectList.get(player.getName()).checkExpired()) {
+                player.sendMessage("§c您已被列为嫌疑玩家，请端正游戏行为！");
+                MainClass.suspectList.get(player.getName()).sendSuspectTips();
+            }else{
+                MainClass.suspectList.remove(player.getName());
+            }
         }
         File file = new File(MainClass.path+"/mailbox/"+player.getName()+".yml");
         if(file.exists()) {
