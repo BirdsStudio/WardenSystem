@@ -248,11 +248,11 @@ public class WardenEventListener implements Listener {
                     case 3:
                         switch (window.getResponse().getClickedButton().getText()){
                             case "开启飞行":
-                                setFlying(player, true);
+                                this.setFlying(player, true);
                                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"开启飞行！");
                                 break;
                             case "关闭飞行":
-                                setFlying(player, false);
+                                this.setFlying(player, false);
                                 MainClass.log.log(Level.INFO, "操作员["+player.getName()+"关闭飞行！");
                                 break;
                         }
@@ -314,7 +314,7 @@ public class WardenEventListener implements Listener {
                 }
                 Player p = Server.getInstance().getPlayer(pn);
                 if(p != null){
-                    Server.getInstance().dispatchCommand(new ConsoleCommandSender(), "tp "+player.getName()+" "+p.getName());
+                    player.teleportImmediate(p); // 更改为直接tp
                     player.sendMessage("§a已传送到："+p.getName());
                     MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用传送功能，传送到玩家"+p.getName()+"！");
                 }else{
