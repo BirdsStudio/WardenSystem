@@ -787,6 +787,11 @@ public class WardenEventListener implements Listener {
                         break;
                     case 3:
                         if(punished != null){
+                            if(response.getInputResponse(10).equals("")) {
+                                punished.kick("您被踢出了游戏！");
+                            }else{
+                                punished.kick(response.getInputResponse(10));
+                            }
                             punished.sendMessage("§c您已被踢出，请规范您的游戏行为！");
                             player.sendMessage("成功踢出玩家["+punishedPn+"]");
                             MainClass.log.log(Level.INFO, "操作员["+player.getName()+"]使用踢出功能，踢出玩家"+punishedPn+"！");

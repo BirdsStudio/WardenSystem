@@ -172,8 +172,8 @@ public class FormMain {
         types.add("添加至怀疑玩家");
         window.addElement(new ElementDropdown("处罚类型", types));
         window.addElement(new ElementToggle("是否永久"));
-        window.addElement(new ElementSlider("年", 0, 30, 1, 1));
-        window.addElement(new ElementSlider("月", 0, 12, 1));
+        window.addElement(new ElementSlider("年", 0, 30, 1));
+        window.addElement(new ElementSlider("月", 0, 12, 1, 1));
         window.addElement(new ElementSlider("天", 0, 30, 1));
         window.addElement(new ElementSlider("时", 0, 24, 1));
         window.addElement(new ElementSlider("分", 0, 60, 1));
