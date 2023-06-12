@@ -6,6 +6,8 @@ import cn.nukkit.Server;
 import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
+import cn.nukkit.event.block.BlockBreakEvent;
+import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.form.response.FormResponseCustom;
@@ -28,6 +30,27 @@ public class WardenEventListener implements Listener {
     
     public static void showFormWindow(Player player, FormWindow window, FormType guiType) {
         UI_CACHE.computeIfAbsent(player, i -> new HashMap<>()).put(player.showFormWindow(window), guiType);
+    }
+
+    // 防止协管切生存破坏
+    @EventHandler
+    public void BlockBreakEvent(BlockBreakEvent event){
+        Player player = event.getPlayer();
+        if(MainClass.wardens.containsKey(player.getName())){
+            if(MainClass.forbid_modify_worlds.contains(player.getLevel().getName())){
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void BlockPlaceEvent(BlockPlaceEvent event){
+        Player player = event.getPlayer();
+        if(MainClass.wardens.containsKey(player.getName())){
+            if(MainClass.forbid_modify_worlds.contains(player.getLevel().getName())){
+                event.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler

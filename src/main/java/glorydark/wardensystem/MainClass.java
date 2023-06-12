@@ -48,6 +48,8 @@ public class MainClass extends PluginBase {
 
     public static HashMap<Player, PlayerData> playerData = new HashMap<>();
 
+    public static List<String> forbid_modify_worlds;
+
     @Override
     public void onLoad() {
         this.getLogger().info("WardenSystem 正在加载！");
@@ -73,6 +75,7 @@ public class MainClass extends PluginBase {
         this.saveResource("config.yml", false);
         this.saveResource("rewards.yml", false);
         Config config = new Config(path+"/config.yml", Config.YAML);
+        forbid_modify_worlds = new ArrayList<>(config.getStringList("forbid_modify_worlds"));
         for(String player: new ArrayList<>(config.getStringList("admins"))){
             WardenData data = new WardenData(null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
             data.setLevelType(WardenLevelType.ADMIN);
