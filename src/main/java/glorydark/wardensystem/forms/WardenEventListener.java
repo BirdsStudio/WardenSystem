@@ -802,30 +802,30 @@ public class WardenEventListener implements Listener {
                         break;
                     case 1:
                         config = new Config(MainClass.path + "/mute.yml", Config.YAML);
+                        if(response.getToggleResponse(3)){
+                            config.set(punishedPn+".start", System.currentTimeMillis());
+                            config.set(punishedPn+".end", "permanent");
+                        }else{
+                            Calendar calendar = new Calendar.Builder().setInstant(System.currentTimeMillis()).build();
+                            calendar.add(Calendar.YEAR, (int) response.getSliderResponse(4));
+                            calendar.add(Calendar.MONTH, (int) response.getSliderResponse(5));
+                            calendar.add(Calendar.DATE, (int) response.getSliderResponse(6));
+                            calendar.add(Calendar.HOUR, (int) response.getSliderResponse(7));
+                            calendar.add(Calendar.MINUTE, (int) response.getSliderResponse(8));
+                            calendar.add(Calendar.SECOND, (int) response.getSliderResponse(9));
+                            config.set(punishedPn+".start", System.currentTimeMillis());
+                            config.set(punishedPn+".end", calendar.getTimeInMillis());
+                        }
+                        config.set(punishedPn+".operator", player.getName());
+                        config.set(punishedPn+".reason", reason);
+                        config.save();
+                        player.sendMessage("成功禁言玩家 ["+punishedPn+"]，解封日期:"+MainClass.getUnMutedDate(punishedPn));
+                        this.broadcastMessage("§e["+punishedPn+"] 因违规发言被禁止发言！");
+                        MainClass.log.log(Level.INFO, "["+player.getName()+"] 成功禁言玩家 ["+punishedPn+"]");
+                        MainClass.wardens.get(player.getName()).addMuteTime();
+                        MainClass.muted.add(punishedPn);
                         if(punished != null){
-                            if(response.getToggleResponse(3)){
-                                config.set(punishedPn+".start", System.currentTimeMillis());
-                                config.set(punishedPn+".end", "permanent");
-                            }else{
-                                Calendar calendar = new Calendar.Builder().setInstant(System.currentTimeMillis()).build();
-                                calendar.add(Calendar.YEAR, (int) response.getSliderResponse(4));
-                                calendar.add(Calendar.MONTH, (int) response.getSliderResponse(5));
-                                calendar.add(Calendar.DATE, (int) response.getSliderResponse(6));
-                                calendar.add(Calendar.HOUR, (int) response.getSliderResponse(7));
-                                calendar.add(Calendar.MINUTE, (int) response.getSliderResponse(8));
-                                calendar.add(Calendar.SECOND, (int) response.getSliderResponse(9));
-                                config.set(punishedPn+".start", System.currentTimeMillis());
-                                config.set(punishedPn+".end", calendar.getTimeInMillis());
-                            }
-                            config.set(punishedPn+".operator", player.getName());
-                            config.set(punishedPn+".reason", reason);
-                            config.save();
                             punished.sendMessage("您已被禁言!");
-                            player.sendMessage("成功禁言玩家 ["+punishedPn+"]，解封日期:"+MainClass.getUnMutedDate(punishedPn));
-                            this.broadcastMessage("§e["+punishedPn+"] 因违规发言被禁止发言！");
-                            MainClass.log.log(Level.INFO, "["+player.getName()+"] 成功禁言玩家 ["+punishedPn+"]");
-                            MainClass.wardens.get(player.getName()).addMuteTime();
-                            MainClass.muted.add(punishedPn);
                         }
                         break;
                     case 2:
@@ -857,20 +857,20 @@ public class WardenEventListener implements Listener {
                         break;
                     case 4:
                         config = new Config(MainClass.path + "/suspects.yml", Config.YAML);
+                        Calendar calendar = new Calendar.Builder().setInstant(System.currentTimeMillis()).build();
+                        calendar.add(Calendar.DATE, 7);
+                        config.set(punishedPn+".start", System.currentTimeMillis());
+                        config.set(punishedPn+".end", calendar.getTimeInMillis());
+                        MainClass.suspectList.put(punishedPn, new SuspectData(punishedPn, System.currentTimeMillis(), calendar.getTimeInMillis()));
+                        config.set(punishedPn+".operator", player.getName());
+                        config.set(punishedPn+".reason", reason);
+                        config.save();
+                        player.sendMessage("成功将玩家 ["+punishedPn+"] 列入嫌疑名单！");
+                        this.broadcastMessage("§e["+punishedPn+"] 因疑似游戏作弊被加入嫌疑玩家名单！");
+                        MainClass.wardens.get(player.getName()).addSuspectTimes();
+                        MainClass.log.log(Level.INFO, "["+player.getName()+"] 成功添加嫌疑玩家 ["+punishedPn+"]");
                         if(punished != null){
-                            Calendar calendar = new Calendar.Builder().setInstant(System.currentTimeMillis()).build();
-                            calendar.add(Calendar.DATE, 7);
-                            config.set(punishedPn+".start", System.currentTimeMillis());
-                            config.set(punishedPn+".end", calendar.getTimeInMillis());
-                            MainClass.suspectList.put(punishedPn, new SuspectData(punishedPn, System.currentTimeMillis(), calendar.getTimeInMillis()));
-                            config.set(punishedPn+".operator", player.getName());
-                            config.set(punishedPn+".reason", reason);
-                            config.save();
-                            player.sendMessage("成功将玩家 ["+punishedPn+"] 列入嫌疑名单！");
                             punished.sendMessage("您已被列入嫌疑玩家，请端正您的游戏行为。");
-                            this.broadcastMessage("§e["+punishedPn+"] 因疑似游戏作弊被加入嫌疑玩家名单！");
-                            MainClass.wardens.get(player.getName()).addSuspectTimes();
-                            MainClass.log.log(Level.INFO, "["+player.getName()+"] 成功添加嫌疑玩家 ["+punishedPn+"]");
                         }
                         break;
                 }
