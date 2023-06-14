@@ -77,7 +77,7 @@ public class MainClass extends PluginBase {
         Config config = new Config(path+"/config.yml", Config.YAML);
         forbid_modify_worlds = new ArrayList<>(config.getStringList("forbid_modify_worlds"));
         for(String player: new ArrayList<>(config.getStringList("admins"))){
-            WardenData data = new WardenData(null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
+            WardenData data = new WardenData(player, null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
             data.setLevelType(WardenLevelType.ADMIN);
             wardens.put(player, data);
         }
@@ -85,7 +85,7 @@ public class MainClass extends PluginBase {
             if(wardens.containsKey(player)){
                 continue;
             }
-            WardenData data = new WardenData(null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
+            WardenData data = new WardenData(player, null, new Config(path+"/wardens/"+ player + ".yml", Config.YAML));
             data.setLevelType(WardenLevelType.NORMAL);
             wardens.put(player, data);
         }
@@ -207,7 +207,7 @@ public class MainClass extends PluginBase {
                             wardens.add(strings[1]);
                             config.set("wardens", wardens);
                             config.save();
-                            WardenData data = new WardenData(null, new Config(path+"/wardens/"+strings[1]+".yml", Config.YAML));
+                            WardenData data = new WardenData(strings[1], null, new Config(path+"/wardens/"+strings[1]+".yml", Config.YAML));
                             MainClass.wardens.put(strings[1], data);
                             commandSender.sendMessage("§a成功为玩家【"+strings[1]+"】赋予协管权限！");
                             log.log(Level.INFO, "CONSOLE执行：/warden add "+strings[1]);
@@ -361,9 +361,8 @@ public class MainClass extends PluginBase {
                     case "refreshworkload":
                         if(MainClass.wardens.size() > 0){
                             for (WardenData value : MainClass.wardens.values()) {
-                                value.setDealBugReportTimes(0);
-                                value.setDealBypassReportTimes(0);
-                                value.save();
+                                value.clearMonthlyWorkload();
+                                commandSender.sendMessage("已经成功清空当前绩效，协管绩效报告已发送给各位协管！");
                             }
                         }
                         break;

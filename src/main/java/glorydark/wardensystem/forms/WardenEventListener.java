@@ -21,6 +21,7 @@ import glorydark.wardensystem.MainClass;
 import glorydark.wardensystem.data.*;
 import glorydark.wardensystem.reports.matters.BugReport;
 import glorydark.wardensystem.reports.matters.ByPassReport;
+import glorydark.wardensystem.reports.matters.Report;
 
 import java.io.File;
 import java.util.*;
@@ -300,6 +301,8 @@ public class WardenEventListener implements Listener {
                     FormMain.showWardenReportTypeList(player);
                     return;
                 }
+                List<BugReport> bugReports = new ArrayList<>(MainClass.bugReports);
+                Collections.reverse(bugReports);
                 BugReport select = MainClass.bugReports.get(id);
                 if(MainClass.wardens.entrySet().stream().anyMatch((s) -> !s.getKey().equals(player.getName()) && s.getValue().getDealing() == select)){
                     FormMain.showReportReturnMenu("该bug反馈已有人在处理！", player, FormType.DealBugReportReturn);
@@ -314,7 +317,9 @@ public class WardenEventListener implements Listener {
                     FormMain.showWardenReportTypeList(player);
                     return;
                 }
-                ByPassReport select1 = MainClass.byPassReports.get(id);
+                List<ByPassReport> byPassReports = new ArrayList<>(MainClass.byPassReports);
+                Collections.reverse(byPassReports);
+                ByPassReport select1 = byPassReports.get(id);
                 if(MainClass.wardens.entrySet().stream().anyMatch((s) -> !s.getKey().equals(player.getName()) && s.getValue().getDealing() == select1)){
                     FormMain.showReportReturnMenu("该举报已有人在处理！", player, FormType.DealByPassReportReturn);
                     return;
@@ -388,6 +393,7 @@ public class WardenEventListener implements Listener {
                             claimed.add(list.get(i));
                             i++;
                         }
+
                         mailInfoConfig.set("unclaimed", new ArrayList<>());
                         mailInfoConfig.set("claimed", claimed);
                         mailInfoConfig.save();
@@ -921,7 +927,7 @@ public class WardenEventListener implements Listener {
                         wardens.add(pn);
                         config.set("wardens", wardens);
                         config.save();
-                        data = new WardenData(null, new Config(MainClass.path+"/wardens/"+pn+".yml", Config.YAML));
+                        data = new WardenData(pn, null, new Config(MainClass.path+"/wardens/"+pn+".yml", Config.YAML));
                         MainClass.wardens.put(pn, data);
                         player.sendMessage("§a成功为赋予玩家【"+pn+"】协管权限！");
                         FormMain.showReportReturnMenu("§a成功为赋予玩家【"+pn+"】协管权限！", player, FormType.AdminAddWardenReturn);

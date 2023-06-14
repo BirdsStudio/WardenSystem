@@ -269,8 +269,10 @@ public class FormMain {
         FormWindowSimple window = new FormWindowSimple("协管系统 - 选择反馈","请选择您要处理的反馈！");
         switch (formType){
             case WardenDealBugReportList:
-                if(MainClass.bugReports.size() > 0){
-                    for(Report report: MainClass.bugReports){
+                List<Report> reports = new ArrayList<>(MainClass.bugReports);
+                if(reports.size() > 0){
+                    Collections.reverse(reports);
+                    for(Report report: reports){
                         window.addButton(new ElementButton((report.isAnonymous()? "【匿名反馈】": "【反馈者："+report.getPlayer()+"】")+"\n"+"提交时间:"+MainClass.getDate(report.getMillis())));
                     }
                 }else{
@@ -280,8 +282,10 @@ public class FormMain {
                 WardenEventListener.showFormWindow(player, window, FormType.WardenDealBugReportList);
                 break;
             case WardenDealByPassReportList:
-                if(MainClass.byPassReports.size() > 0) {
-                    for (Report report : MainClass.byPassReports) {
+                reports = new ArrayList<>(MainClass.byPassReports);
+                if(reports.size() > 0) {
+                    Collections.reverse(reports);
+                    for (Report report : reports) {
                         window.addButton(new ElementButton((report.isAnonymous() ? "【匿名举报】" : "【举报者：" + report.getPlayer() + "】") + "\n" + "提交时间:" + MainClass.getDate(report.getMillis())));
                     }
                 }else{
@@ -372,6 +376,7 @@ public class FormMain {
         if(file.exists()){
             Config config = new Config(file, Config.YAML);
             List<Map<String, Object>> list = config.get("unclaimed", new ArrayList<>());
+            Collections.reverse(list);
             FormWindowSimple window;
             if(list.size() > 0){
                 window = new FormWindowSimple("协管系统 - 邮箱系统", "请选择您要查收的邮件！");
@@ -395,7 +400,9 @@ public class FormMain {
     public static void showMailDetail(Player player, Integer index){
         Config config = new Config(MainClass.path+"/mailbox/"+player.getName()+".yml", Config.YAML);
         MainClass.mails.put(player, index);
-        Map<String, Object> map = (Map<String, Object>) (config.get("unclaimed", new ArrayList<>())).get(index);
+        List<Map<String, Object>> list = config.get("unclaimed", new ArrayList<>());
+        Collections.reverse(list);
+        Map<String, Object> map = list.get(index);
         String string = "邮件名：" + map.getOrDefault("title", "无标题") + "\n发信人：" + map.getOrDefault("sender", "Undefined") + "\n发信时间：" + MainClass.getDate((Long) map.getOrDefault("millis", 0L)) + "\n内容：" + ((String) map.getOrDefault("content", "undefined")).replace("\\n", "\n");
         FormWindowSimple window = new FormWindowSimple("协管系统",string);
         window.addButton(new ElementButton("已读/领取物品"));

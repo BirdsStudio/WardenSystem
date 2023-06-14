@@ -5,11 +5,12 @@ import glorydark.wardensystem.MainClass;
 import glorydark.wardensystem.reports.matters.Report;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Data
 public class WardenData {
+
+    private String name;
 
     private Report dealing; //处理事务类型
 
@@ -59,7 +60,8 @@ public class WardenData {
 
     private boolean showWardenPrefix;
 
-    public WardenData(Report dealing, Config config){
+    public WardenData(String name, Report dealing, Config config){
+        this.name = name;
         this.gamemodeBefore = 0;
         this.dealing = dealing;
         this.config = config;
@@ -83,14 +85,7 @@ public class WardenData {
         this.gradePlayerCounts = config.getInt("grade_player_counts", 0);
         this.joinTime = MainClass.getDate(config.getLong("join_time"));
         this.showWardenPrefix = config.getBoolean("show_warden_prefix", true);
-        if(this.dealBypassReportTimes > this.accumulatedDealBypassReportTimes){
-            this.accumulatedDealBypassReportTimes = this.dealBypassReportTimes;
-        }
-        if(this.dealBugReportTimes > this.accumulatedDealBugReportTimes){
-            this.accumulatedDealBugReportTimes = this.dealBugReportTimes;
-        }
         this.fixConfig();
-        this.save();
     }
 
     protected void fixConfig(){
@@ -248,7 +243,41 @@ public class WardenData {
         config.save();
     }
 
-    public void save(){
+    public void clearMonthlyWorkload(){
+        this.dealBugReportTimes = 0;
+        this.dealBypassReportTimes = 0;
+        this.banTimes = 0;
+        this.kickTimes = 0;
+        this.muteTimes = 0;
+        this.warnTimes = 0;
+        this.suspectTimes = 0;
+        config.set("deal_bug_report_times", banTimes);
+        config.set("deal_bypass_report_times", kickTimes);
+        config.set("ban_times", banTimes);
+        config.set("kick_times", kickTimes);
+        config.set("mute_times", muteTimes);
+        config.set("warn_times", warnTimes);
+        config.set("suspect_times", suspectTimes);
+        config.save();
+        Config config = new Config(MainClass.path+"/mailbox/"+this.name+".yml", Config.YAML);
+        List<Map<String, Object>> list = config.get("unclaimed", new ArrayList<>());
+        Map<String, Object> map = new HashMap<>();
+        map.put("sender", "协管团队");
+        map.put("title", Calendar.getInstance().get(Calendar.MONTH)+"月协管报告");
+        String builder = "\n亲爱的协管成员，感谢您又陪我们度过了一个月。在本个月中，您的绩效如下：" + "\n" +
+                "当月处理bug反馈数：" + this.getDealBugReportTimes() +
+                "\n当月处理举报数：" + this.getDealBypassReportTimes() +
+                "\n当月封禁玩家：" + this.getBanTimes() +
+                "\n当月禁言玩家：" + this.getMuteTimes() +
+                "\n当月警告玩家：" + this.getWarnTimes() +
+                "\n当月怀疑玩家：" + this.getSuspectTimes() +
+                "\n当月踢出玩家：" + this.getKickTimes();
+        map.put("content", builder);
+        map.put("millis", System.currentTimeMillis());
+        map.put("commands", new ArrayList<>());
+        map.put("messages", new ArrayList<>());
+        list.add(map);
+        config.set("unclaimed", list);
         config.save();
     }
 }
