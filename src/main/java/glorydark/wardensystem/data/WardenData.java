@@ -57,6 +57,8 @@ public class WardenData {
 
     private WardenLevelType levelType;
 
+    private boolean showWardenPrefix;
+
     public WardenData(Report dealing, Config config){
         this.gamemodeBefore = 0;
         this.dealing = dealing;
@@ -80,6 +82,7 @@ public class WardenData {
         this.allGradesFromPlayers = config.getInt("all_grades_from_players", 5);
         this.gradePlayerCounts = config.getInt("grade_player_counts", 0);
         this.joinTime = MainClass.getDate(config.getLong("join_time"));
+        this.showWardenPrefix = config.getBoolean("show_warden_prefix", true);
         if(this.dealBypassReportTimes > this.accumulatedDealBypassReportTimes){
             this.accumulatedDealBypassReportTimes = this.dealBypassReportTimes;
         }
@@ -147,6 +150,9 @@ public class WardenData {
         }
         if(!config.exists("join_time")){
             config.set("join_time", System.currentTimeMillis());
+        }
+        if(!config.exists("show_warden_prefix")){
+            config.set("show_warden_prefix", true);
         }
         config.save();
     }
@@ -229,6 +235,16 @@ public class WardenData {
         List<String> prefixes = new ArrayList<>(config.getStringList("prefixes"));
         prefixes.remove(string);
         config.set("prefixes", prefixes);
+        config.save();
+    }
+
+    public boolean isShowWardenPrefix() {
+        return showWardenPrefix;
+    }
+
+    public void setShowWardenPrefix(boolean showWardenPrefix) {
+        this.showWardenPrefix = showWardenPrefix;
+        config.set("show_warden_prefix", showWardenPrefix);
         config.save();
     }
 

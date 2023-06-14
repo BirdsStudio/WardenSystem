@@ -16,6 +16,7 @@ import cn.nukkit.form.window.FormWindowCustom;
 import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.utils.Config;
+import glorydark.nukkit.event.PrefixModifyMessageEvent;
 import glorydark.wardensystem.MainClass;
 import glorydark.wardensystem.data.*;
 import glorydark.wardensystem.reports.matters.BugReport;
@@ -30,6 +31,24 @@ public class WardenEventListener implements Listener {
     
     public static void showFormWindow(Player player, FormWindow window, FormType guiType) {
         UI_CACHE.computeIfAbsent(player, i -> new HashMap<>()).put(player.showFormWindow(window), guiType);
+    }
+
+    @EventHandler
+    public void PrefixModifyMessageEvent(PrefixModifyMessageEvent event){
+        Player player = event.getPlayer();
+        WardenData data = MainClass.wardens.get(player.getName());
+        if(data != null){
+            if(data.isShowWardenPrefix()){
+                switch (data.getLevelType()){
+                    case ADMIN:
+                        event.setDisplayedPrefix("§6§l协管主管");
+                        break;
+                    case NORMAL:
+                        event.setDisplayedPrefix("§6§l玩家协管");
+                        break;
+                }
+            }
+        }
     }
 
     //修复协管飞行状态下饥饿下降的bug
@@ -579,13 +598,18 @@ public class WardenEventListener implements Listener {
                 if(response == null){
                     return;
                 }
-                if(response.getDropdownResponse(4).getElementContent().equals("- 默认 -")){
+                WardenData data = MainClass.wardens.get(player.getName());
+                boolean show = response.getToggleResponse(6);
+                if(show != data.isShowWardenPrefix()){
+                    data.setShowWardenPrefix(show);
+                    player.sendMessage("§a* 成功设置协管称号显示为："+show);
+                }
+                if(response.getDropdownResponse(5).getElementContent().equals(FormMain.noSelectedItemText)){
                     return;
                 }
-                WardenData data = MainClass.wardens.get(player.getName());
                 List<String> old = data.getPrefixes();
                 if(old.size() > 1){
-                    String selectPrefix = response.getDropdownResponse(4).getElementContent();
+                    String selectPrefix = response.getDropdownResponse(5).getElementContent();
                     if(!old.get(0).equals(selectPrefix)){
                         List<String> newRank = new ArrayList<>();
                         newRank.add(selectPrefix);

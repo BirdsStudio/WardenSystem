@@ -316,19 +316,29 @@ public class FormMain {
         //to do: 评分正确率目前得从后台更改
         window.addElement(new ElementLabel("玩家评分："+(data.getGradePlayerCounts() > 0? format.format(new BigDecimal(data.getAllGradesFromPlayers()).divide(new BigDecimal(data.getGradePlayerCounts()), 2, RoundingMode.HALF_UP)) +" / 5.0": 5.0 +" / 5.0")));
         //window.addElement(new ElementLabel("正确率："+((data.getDeal_bypass_report_times()) > 0? (format.format(new BigDecimal("1.0").subtract(new BigDecimal(data.vetoedTimes).divide(new BigDecimal(data.accumulatedTimes), 4, RoundingMode.HALF_UP)).multiply(new BigDecimal(100))) + "%%"): "100%%")));
-        window.addElement(new ElementLabel("当月处理bug反馈数："+data.getDealBugReportTimes()
+        window.addElement(new ElementLabel(
+                "当月处理bug反馈数："+data.getDealBugReportTimes()
                 + "\n当月处理举报数：" + data.getDealBypassReportTimes()
-                + "\n累计处理bug反馈数："+data.getAccumulatedDealBugReportTimes()
+                + "\n当月封禁玩家："+data.getBanTimes()
+                + "\n当月禁言玩家："+data.getMuteTimes()
+                + "\n当月警告玩家："+data.getWarnTimes()
+                + "\n当月怀疑玩家："+data.getSuspectTimes()
+                + "\n当月踢出玩家："+data.getKickTimes()
+        )); // To do
+        window.addElement(new ElementLabel(
+                "\n累计处理bug反馈数："+data.getAccumulatedDealBugReportTimes()
                 + "\n累计处理举报数："+data.getAccumulatedDealBypassReportTimes()
-                + "\n累计封禁玩家："+data.getBanTimes()
-                + "\n累计禁言玩家："+data.getMuteTimes()
-                + "\n累计警告玩家："+data.getWarnTimes()
-                + "\n累计怀疑玩家："+data.getSuspectTimes()
+                + "\n累计封禁玩家："+data.getAccumulatedBanTimes()
+                + "\n累计禁言玩家："+data.getAccumulatedMuteTimes()
+                + "\n累计警告玩家："+data.getAccumulatedWarnTimes()
+                + "\n累计怀疑玩家："+data.getAccumulatedSuspectTimes()
+                + "\n累计踢出玩家："+data.getAccumulatedKickTimes()
         )); // To do
         window.addElement(new ElementLabel("入职时间："+ data.getJoinTime()));
         List<String> prefixes = new ArrayList<>(data.getPrefixes());
-        prefixes.add("- 默认 -");
+        prefixes.add(noSelectedItemText);
         window.addElement(new ElementDropdown("更改称号显示", prefixes));
+        window.addElement(new ElementToggle("开启协管称号显示", data.isShowWardenPrefix()));
         WardenEventListener.showFormWindow(player, window, FormType.WardenPersonalInfo);
     }
 
