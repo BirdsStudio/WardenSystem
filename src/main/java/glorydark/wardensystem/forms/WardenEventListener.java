@@ -819,13 +819,14 @@ public class WardenEventListener implements Listener {
                         config.set(punishedPn+".operator", player.getName());
                         config.set(punishedPn+".reason", reason);
                         config.save();
-                        player.sendMessage("成功禁言玩家 ["+punishedPn+"]，解封日期:"+MainClass.getUnMutedDate(punishedPn));
+                        String unMutedDate = MainClass.getUnMutedDate(punishedPn);
+                        player.sendMessage("成功禁言玩家 ["+punishedPn+"]，解封日期:"+unMutedDate);
                         this.broadcastMessage("§e["+punishedPn+"] 因违规发言被禁止发言！");
                         MainClass.log.log(Level.INFO, "["+player.getName()+"] 成功禁言玩家 ["+punishedPn+"]");
                         MainClass.wardens.get(player.getName()).addMuteTime();
                         MainClass.muted.add(punishedPn);
                         if(punished != null){
-                            punished.sendMessage("您已被禁言!");
+                            punished.sendMessage("您已被禁言! 解封日期:"+unMutedDate);
                         }
                         break;
                     case 2:
