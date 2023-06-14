@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 
 public class FormMain {
 
+    public static String noSelectedItemText = "- 未选择 -";
+
     public static void showWardenMain(Player player){
         WardenData data = MainClass.wardens.get(player.getName());
         if(data == null){
@@ -117,7 +119,7 @@ public class FormMain {
     public static void showRemoveWarden(Player player){
         FormWindowCustom window = new FormWindowCustom("管理系统 - 删除协管");
         ElementDropdown dropdown = new ElementDropdown("协管列表");
-        dropdown.addOption("- 未选择 -");
+        dropdown.addOption(noSelectedItemText);
         for(Map.Entry<String, WardenData> entry: MainClass.wardens.entrySet()){
             if(entry.getValue().getLevelType() != WardenLevelType.ADMIN){
                 dropdown.addOption(entry.getKey());
@@ -161,7 +163,7 @@ public class FormMain {
             }
         }
         ElementDropdown dropdown = new ElementDropdown("选择在线玩家（橙色为主管，黄色为协管）");
-        dropdown.addOption("- 未选择 -");
+        dropdown.addOption(noSelectedItemText);
         dropdown.getOptions().addAll(onlinePlayers);
         window.addElement(dropdown);
         List<String> types = new ArrayList<>();
@@ -178,7 +180,15 @@ public class FormMain {
         window.addElement(new ElementSlider("时", 0, 24, 1));
         window.addElement(new ElementSlider("分", 0, 60, 1));
         window.addElement(new ElementSlider("秒", 0, 60, 1));
-        window.addElement(new ElementInput("理由"));
+        ElementDropdown elementDropdown = new ElementDropdown("常见理由");
+        elementDropdown.addOption(noSelectedItemText);
+        elementDropdown.addOption("无击退");
+        elementDropdown.addOption("自动搭路");
+        elementDropdown.addOption("杀戮");
+        elementDropdown.addOption("飞行");
+        elementDropdown.addOption("移速挂");
+        window.addElement(elementDropdown);
+        window.addElement(new ElementInput("具体理由"));
         WardenEventListener.showFormWindow(player, window, FormType.WardenPunish);
     }
 
@@ -407,7 +417,7 @@ public class FormMain {
                 FormWindowCustom window1 = new FormWindowCustom("协管系统 - 举报");
                 window1.addElement(new ElementInput("举报玩家名"));
                 List<String> strings = new ArrayList<>();
-                strings.add("- 未选择 -");
+                strings.add(noSelectedItemText);
                 Server.getInstance().getOnlinePlayers().values().forEach(player1 -> strings.add(player1.getName()));
                 ElementDropdown dropdown = new ElementDropdown("选择在线玩家");
                 dropdown.getOptions().addAll(strings);
