@@ -89,7 +89,7 @@ public class WardenEventListener implements Listener {
     }
     
     @EventHandler
-    public void PlayerJoinEvent(PlayerJoinEvent event){
+    public void PlayerLocallyInitializedEvent(PlayerLocallyInitializedEvent event){
         // 重置出生点，防止出生点在地狱（生存服问题）
         if(event.getPlayer().getSpawn().getLevel().getName().equals("nether")){
             event.getPlayer().setSpawn(Server.getInstance().getDefaultLevel().getSpawnLocation());
@@ -98,12 +98,12 @@ public class WardenEventListener implements Listener {
         Player player = event.getPlayer();
         long bannedRemained = MainClass.getRemainedBannedTime(player.getName());
         if(bannedRemained != 0){
-            player.kick("§c您已被封禁\n§e解封时间："+MainClass.getUnBannedDate(player.getName()));
+            player.kick("§c您已被封禁\n§e解封时间："+MainClass.getUnBannedDate(player.getName())+"\n申诉方式：前往服务器群聊申诉（432813576）");
             return;
         }
         long mutedRemained = MainClass.getRemainedMutedTime(player.getName());
         if(mutedRemained != 0){
-            player.sendMessage("§c您已被禁言\n§e解封时间："+MainClass.getUnMutedDate(player.getName()));
+            player.sendMessage("§c您已被禁言\n§e解封时间："+MainClass.getUnMutedDate(player.getName())+"\n申诉方式：前往服务器群聊申诉（432813576）");
             return;
         }
         if(MainClass.wardens.containsKey(player.getName())){
@@ -767,7 +767,7 @@ public class WardenEventListener implements Listener {
                         MainClass.log.log(Level.INFO, "["+player.getName()+"] 成功封禁玩家 ["+punishedPn+"]");
                         this.broadcastMessage("§e["+punishedPn+"] 因游戏作弊被打入小黑屋！");
                         if(punished != null){
-                            punished.kick("您已被封禁!");
+                            punished.kick("您已被封禁!\n解封日期:"+MainClass.getUnBannedDate(punishedPn)+"\n申诉方式：前往服务器群聊申诉（432813576）");
                         }
                         break;
                     case 1:
