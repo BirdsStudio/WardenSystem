@@ -5,5 +5,5 @@ author: glorydark
 api: ["1.0.0"]
 description: WardenSystem
 load: POSTWORLD
-depend:
+softdepend:
   - SimplePrefix
