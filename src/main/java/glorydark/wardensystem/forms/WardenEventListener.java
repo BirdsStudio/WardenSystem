@@ -114,11 +114,6 @@ public class WardenEventListener implements Listener {
     
     @EventHandler
     public void PlayerLocallyInitializedEvent(PlayerLocallyInitializedEvent event){
-        // 重置出生点，防止出生点在地狱（生存服问题）
-        if(event.getPlayer().getSpawn().getLevel().getName().equals("nether")){
-            event.getPlayer().setSpawn(Server.getInstance().getDefaultLevel().getSpawnLocation());
-        }
-
         Player player = event.getPlayer();
         long bannedRemained = WardenAPI.getRemainedBannedTime(player.getName());
         if(bannedRemained != 0){
