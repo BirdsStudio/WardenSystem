@@ -61,7 +61,8 @@ public class WardenEventListener implements Listener {
     public void PlayerFoodLevelChangeEvent(PlayerFoodLevelChangeEvent event){
         Player player = event.getPlayer();
         if(player.getGamemode() == 0 && player.getAdventureSettings().get(AdventureSettings.Type.ALLOW_FLIGHT)){
-            player.getFoodData().setLevel(20, 20.0F);
+            event.setFoodLevel(20);
+            event.setFoodSaturationLevel(20);
         }
     }
 
