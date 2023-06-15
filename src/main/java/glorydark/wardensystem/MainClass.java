@@ -10,6 +10,7 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 import glorydark.wardensystem.data.*;
 import glorydark.wardensystem.forms.FormMain;
+import glorydark.wardensystem.forms.WardenAddonListener;
 import glorydark.wardensystem.forms.WardenEventListener;
 import glorydark.wardensystem.reports.matters.BugReport;
 import glorydark.wardensystem.reports.matters.ByPassReport;
@@ -130,6 +131,7 @@ public class MainClass extends PluginBase {
             }
         }.runTaskTimer(this, 0, 20);
         this.getServer().getPluginManager().registerEvents(new WardenEventListener(), this);
+        this.getServer().getPluginManager().registerEvents(new WardenAddonListener(), this);
         this.getServer().getCommandMap().register("", new WardenCommand(config.getString("command")));
         // this.getServer().getCommandMap().register("", new TestCommand("test"));
         this.getLogger().info("WardenSystem 加载成功！");

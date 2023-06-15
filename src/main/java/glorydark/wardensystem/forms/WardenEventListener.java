@@ -38,24 +38,6 @@ public class WardenEventListener implements Listener {
         UI_CACHE.computeIfAbsent(player, i -> new HashMap<>()).put(player.showFormWindow(window), guiType);
     }
 
-    @EventHandler
-    public void PrefixModifyMessageEvent(PrefixModifyMessageEvent event){
-        Player player = event.getPlayer();
-        WardenData data = MainClass.wardens.get(player.getName());
-        if(data != null){
-            if(data.isShowWardenPrefix()){
-                switch (data.getLevelType()){
-                    case ADMIN:
-                        event.setDisplayedPrefix("§6§l协管主管");
-                        break;
-                    case NORMAL:
-                        event.setDisplayedPrefix("§6§l玩家协管");
-                        break;
-                }
-            }
-        }
-    }
-
     //修复协管飞行状态下饥饿下降的bug
     @EventHandler
     public void PlayerFoodLevelChangeEvent(PlayerFoodLevelChangeEvent event){
