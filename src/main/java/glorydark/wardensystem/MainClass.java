@@ -195,150 +195,35 @@ public class MainClass extends PluginBase {
                         break;
                     case "add":
                         if(strings.length < 2){ return true; }
-                        if(!Server.getInstance().lookupName(strings[1]).isPresent()){
-                            commandSender.sendMessage("§c找不到玩家！");
-                            return true;
-                        }
-                        config = new Config(path+"/config.yml", Config.YAML);
-                        wardens = new ArrayList<>(config.getStringList("wardens"));
-                        if(wardens.contains(strings[1])){
-                            commandSender.sendMessage("§c该玩家已为协管！");
-                        }else{
-                            wardens.add(strings[1]);
-                            config.set("wardens", wardens);
-                            config.save();
-                            WardenData data = new WardenData(strings[1], null, new Config(path+"/wardens/"+strings[1]+".yml", Config.YAML));
-                            MainClass.wardens.put(strings[1], data);
-                            commandSender.sendMessage("§a成功为玩家【"+strings[1]+"】赋予协管权限！");
-                            log.log(Level.INFO, "CONSOLE执行：/warden add "+strings[1]);
-                        }
+                        WardenAPI.addWarden(commandSender, strings[1]);
                         break;
                     case "remove":
                         if(strings.length < 2){ return true; }
-                        if(!Server.getInstance().lookupName(strings[1]).isPresent()){
-                            commandSender.sendMessage("§c找不到玩家！");
-                            return true;
-                        }
-                        Config config1 = new Config(path+"/config.yml", Config.YAML);
-                        List<String> wardens1 = new ArrayList<>(config1.getStringList("wardens"));
-                        if(wardens1.contains(strings[1])){
-                            wardens1.remove(strings[1]);
-                            config1.set("wardens", wardens1);
-                            config1.save();
-                            MainClass.wardens.remove(strings[1]);
-                            commandSender.sendMessage("§a成功卸除玩家【"+strings[1]+"】的协管权限！");
-                            log.log(Level.INFO, "CONSOLE执行：/warden remove "+strings[1]);
-                        }else{
-                            commandSender.sendMessage("§c该玩家不是协管！");
-                        }
+                        WardenAPI.removeWarden(commandSender, strings[1]);
                         break;
                     case "ban":
                         if(strings.length < 2){ return true; }
-                        if(!Server.getInstance().lookupName(strings[1]).isPresent()){
-                            commandSender.sendMessage("§c找不到玩家！");
-                            return true;
-                        }
-                        Config banCfg = new Config(path+"/ban.yml", Config.YAML);
-                        List<String> banned = new ArrayList<>(banCfg.getKeys(false));
-                        if(banned.contains(strings[1])){
-                            commandSender.sendMessage("§c该玩家已被封禁！");
-                        }else{
-                            banned.add(strings[1]);
-                            Map<String, Object> map = new HashMap<>();
-                            map.put("start", System.currentTimeMillis());
-                            map.put("end", "permanent");
-                            map.put("operator", "console");
-                            map.put("reason", "控制台封禁");
-                            banCfg.set(strings[1], map);
-                            banCfg.save();
-                            commandSender.sendMessage("§a成功封禁玩家【"+strings[1]+"】！");
-                            log.log(Level.INFO, "CONSOLE执行：/warden ban "+strings[1]);
-
-                            Player punished = Server.getInstance().getPlayer(strings[1]);
-                            if(punished != null){
-                                punished.kick("您已被封禁");
-                            }
-                            // 向所有在线玩家广播封禁消息
-                            Server.getInstance().broadcastMessage("§e["+strings[1]+"] 因游戏作弊被打入小黑屋！");
-                        }
+                        WardenAPI.ban(commandSender, strings[1], "控制台封禁", -1);
                         break;
                     case "unban":
                         if(strings.length < 2){ return true; }
-                        Config banCfg1 = new Config(path+"/ban.yml", Config.YAML);
-                        List<String> banned1 = new ArrayList<>(banCfg1.getKeys(false));
-                        if(banned1.contains(strings[1])){
-                            banCfg1.remove(strings[1]);
-                            banCfg1.save();
-                            commandSender.sendMessage("§a成功解封玩家【"+strings[1]+"】！");
-                            log.log(Level.INFO, "CONSOLE执行：/warden unban "+strings[1]);
-                        }else{
-                            commandSender.sendMessage("§c该玩家未被封禁！");
-                        }
+                        WardenAPI.unban(commandSender, strings[1]);
                         break;
                     case "mute":
                         if(strings.length < 2){ return true; }
-                        if(!Server.getInstance().lookupName(strings[1]).isPresent()){
-                            commandSender.sendMessage("§c找不到玩家！");
-                            return true;
-                        }
-                        Config muteCfg = new Config(path+"/mute.yml", Config.YAML);
-                        List<String> muted = new ArrayList<>(muteCfg.getKeys(false));
-                        if(muted.contains(strings[1])){
-                            commandSender.sendMessage("§c该玩家已被禁言！");
-                        }else{
-                            muted.add(strings[1]);
-                            Map<String, Object> map = new HashMap<>();
-                            map.put("start", System.currentTimeMillis());
-                            map.put("end", "permanent");
-                            map.put("operator", "console");
-                            map.put("reason", "控制台封禁");
-                            muteCfg.set(strings[1], map);
-                            muteCfg.save();
-                            commandSender.sendMessage("§a成功禁言玩家【"+strings[1]+"】！");
-                            MainClass.muted.add(strings[1]);
-                            Player punished = Server.getInstance().getPlayer(strings[1]);
-                            if(punished != null){
-                                punished.sendMessage("您已被禁言");
-                            }
-                            log.log(Level.INFO, "CONSOLE执行：/warden mute "+strings[1]);
-                            Server.getInstance().broadcastMessage("§e["+strings[1]+"] 因违规发言被禁止发言！");
-                        }
+                        WardenAPI.mute(commandSender, strings[1], "控制台封禁", -1);
                         break;
                     case "unmute":
                         if(strings.length < 2){ return true; }
-                        Config muteCfg1 = new Config(path+"/mute.yml", Config.YAML);
-                        List<String> muted1 = new ArrayList<>(muteCfg1.getKeys(false));
-                        if(muted1.contains(strings[1])){
-                            muteCfg1.remove(strings[1]);
-                            muteCfg1.save();
-                            commandSender.sendMessage("§a成功为玩家【"+strings[1]+"】解除禁言！");
-                            MainClass.muted.remove(strings[1]);
-                            log.log(Level.INFO, "CONSOLE执行：/warden unmute "+strings[1]);
-                        }else{
-                            commandSender.sendMessage("§c该玩家未被禁言！");
-                        }
+                        WardenAPI.unmute(commandSender, strings[1]);
                         break;
                     case "warn":
                         if(strings.length < 2){ return true; }
-                        Player to = Server.getInstance().getPlayer(strings[1]);
-                        if(to != null){
-                            to.sendMessage("§c您已被警告，请规范您的游戏行为！");
-                            commandSender.sendMessage("§a警告已发送！");
-                            log.log(Level.INFO, "CONSOLE执行：/warden warn "+strings[1]);
-                        }else{
-                            commandSender.sendMessage("§c该玩家不存在！");
-                        }
+                        WardenAPI.warn(commandSender, strings[1]);
                         break;
                     case "kick":
                         if(strings.length < 2){ return true; }
-                        Player kicked = Server.getInstance().getPlayer(strings[1]);
-                        if(kicked != null){
-                            kicked.kick("§c您已被踢出，请规范您的游戏行为！");
-                            commandSender.sendMessage("§a已踢出该玩家！");
-                            log.log(Level.INFO, "CONSOLE执行：/warden kick "+strings[1]);
-                        }else{
-                            commandSender.sendMessage("§c该玩家不存在！");
-                        }
+                        WardenAPI.kick(commandSender, strings[1]);
                         break;
                     case "list":
                         if(MainClass.bugReports.size() > 0) {
@@ -403,51 +288,5 @@ public class MainClass extends PluginBase {
             }
             return true;
         }
-    }
-
-    public static String getUnBannedDate(String player){
-        Config config = new Config(path+"/ban.yml", Config.YAML);
-        return !String.valueOf(config.get(player+".end", "")).equals("permanent")? MainClass.getDate(config.getLong(player+".end")): "永久封禁";
-    }
-
-    public static String getUnMutedDate(String player){
-        Config config = new Config(path+"/mute.yml", Config.YAML);
-        return !String.valueOf(config.get(player+".end", "")).equals("permanent")? MainClass.getDate(config.getLong(player+".end")): "永久封禁";
-    }
-
-    public static long getRemainedBannedTime(String player){
-        Config config = new Config(path+"/ban.yml", Config.YAML);
-        if(config.exists(player)){
-            if(config.get(player+".end").toString().equals("permanent")){
-                return -1;
-            }else{
-                if(System.currentTimeMillis() >= config.getLong(player+".end")){
-                    config.remove(player);
-                    config.save();
-                    return 0;
-                }else{
-                    return config.getLong(player+".end") - System.currentTimeMillis();
-                }
-            }
-        }
-        return 0;
-    }
-
-    public static long getRemainedMutedTime(String player){
-        Config config = new Config(path+"/mute.yml", Config.YAML);
-        if(config.exists(player)){
-            if(config.get(player+".end").toString().equals("permanent")){
-                return -1;
-            }else{
-                if(System.currentTimeMillis() >= config.getLong(player+".end")){
-                    config.remove(player);
-                    config.save();
-                    return 0;
-                }else{
-                    return (config.getLong(player+".end") - System.currentTimeMillis());
-                }
-            }
-        }
-        return 0;
     }
 }
