@@ -623,6 +623,10 @@ public class WardenEventListener implements Listener {
                 } else {
                     suspect = response.getInputResponse(0);
                 }
+                if(!Server.getInstance().lookupName(suspect).isPresent()){
+                    player.sendMessage("§c玩家不存在："+suspect);
+                    return;
+                }
                 if (!bypassInfo.equals("") && !suspect.equals("") && !suspect.equals(FormMain.noSelectedItemText)) {
                     Config s1 = new Config(MainClass.path + "/bypassreports/" + System.currentTimeMillis() + ".yml", Config.YAML);
                     boolean bypassBoolean = response.getToggleResponse(3);
