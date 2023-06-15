@@ -12,13 +12,13 @@ public class OfflineData {
 
     private long millis;
 
-    public OfflineData(Player player){
+    public OfflineData(Player player) {
         this.name = player.getName();
         this.displayName = player.getDisplayName();
         this.millis = System.currentTimeMillis();
     }
 
-    public boolean isExpired(){
+    public boolean isExpired() {
         return System.currentTimeMillis() - millis >= 60000;
     }
 }

@@ -13,7 +13,7 @@ public class TestCommand extends Command {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
-        if(commandSender.isPlayer()) {
+        if (commandSender.isPlayer()) {
             FormWindowSimple simple = new FormWindowSimple("233", "233");
             Player player = (Player) commandSender;
             player.showFormWindow(simple);

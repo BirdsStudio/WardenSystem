@@ -60,7 +60,7 @@ public class WardenData {
 
     private boolean showWardenPrefix;
 
-    public WardenData(String name, Report dealing, Config config){
+    public WardenData(String name, Report dealing, Config config) {
         this.name = name;
         this.gamemodeBefore = 0;
         this.dealing = dealing;
@@ -88,71 +88,71 @@ public class WardenData {
         this.fixConfig();
     }
 
-    protected void fixConfig(){
-        if(!config.exists("prefixes")){
+    protected void fixConfig() {
+        if (!config.exists("prefixes")) {
             config.set("prefixes", new ArrayList<>());
         }
-        if(!config.exists("deal_bug_report_times")){
+        if (!config.exists("deal_bug_report_times")) {
             config.set("deal_bug_report_times", 0);
         }
-        if(!config.exists("deal_bypass_report_times")){
+        if (!config.exists("deal_bypass_report_times")) {
             config.set("deal_bypass_report_times", 0);
         }
-        if(!config.exists("accumulated_deal_bug_report_times")){
+        if (!config.exists("accumulated_deal_bug_report_times")) {
             config.set("accumulated_deal_bug_report_times", 0);
         }
-        if(!config.exists("accumulated_deal_bypass_report_times")){
+        if (!config.exists("accumulated_deal_bypass_report_times")) {
             config.set("accumulated_deal_bypass_report_times", 0);
         }
-        if(!config.exists("ban_times")){
+        if (!config.exists("ban_times")) {
             config.set("ban_times", 0);
         }
-        if(!config.exists("mute_times")){
+        if (!config.exists("mute_times")) {
             config.set("mute_times", 0);
         }
-        if(!config.exists("warn_times")){
+        if (!config.exists("warn_times")) {
             config.set("warn_times", 0);
         }
-        if(!config.exists("suspect_times")){
+        if (!config.exists("suspect_times")) {
             config.set("suspect_times", 0);
         }
-        if(!config.exists("kick_times")){
+        if (!config.exists("kick_times")) {
             config.set("kick_times", 0);
         }
-        if(!config.exists("accumulated_ban_times")){
+        if (!config.exists("accumulated_ban_times")) {
             config.set("accumulated_ban_times", 0);
         }
-        if(!config.exists("accumulated_mute_times")){
+        if (!config.exists("accumulated_mute_times")) {
             config.set("accumulated_mute_times", 0);
         }
-        if(!config.exists("accumulated_warn_times")){
+        if (!config.exists("accumulated_warn_times")) {
             config.set("accumulated_warn_times", 0);
         }
-        if(!config.exists("accumulated_suspect_times")){
+        if (!config.exists("accumulated_suspect_times")) {
             config.set("accumulated_suspect_times", 0);
         }
-        if(!config.exists("accumulated_kick_times")){
+        if (!config.exists("accumulated_kick_times")) {
             config.set("accumulated_kick_times", 0);
         }
-        if(!config.exists("vetoed_times")){
+        if (!config.exists("vetoed_times")) {
             config.set("vetoed_times", 0);
         }
-        if(!config.exists("all_grades_from_players")){
+        if (!config.exists("all_grades_from_players")) {
             config.set("all_grades_from_players", 5);
         }
-        if(!config.exists("grade_player_counts")){
+        if (!config.exists("grade_player_counts")) {
             config.set("grade_player_counts", 0);
         }
-        if(!config.exists("join_time")){
+        if (!config.exists("join_time")) {
             config.set("join_time", System.currentTimeMillis());
         }
-        if(!config.exists("show_warden_prefix")){
+        if (!config.exists("show_warden_prefix")) {
             config.set("show_warden_prefix", true);
         }
         config.save();
     }
 
-    public void addBanTime(){
+    public void addBanTime() {
         banTimes++;
         accumulatedBanTimes++;
         config.set("ban_times", banTimes);
@@ -160,7 +160,7 @@ public class WardenData {
         config.save();
     }
 
-    public void addMuteTime(){
+    public void addMuteTime() {
         muteTimes++;
         accumulatedMuteTimes++;
         config.set("mute_times", muteTimes);
@@ -168,7 +168,7 @@ public class WardenData {
         config.save();
     }
 
-    public void addWarnTime(){
+    public void addWarnTime() {
         warnTimes++;
         accumulatedWarnTimes++;
         config.set("warn_times", warnTimes);
@@ -176,7 +176,7 @@ public class WardenData {
         config.save();
     }
 
-    public void addSuspectTimes(){
+    public void addSuspectTimes() {
         suspectTimes++;
         accumulatedSuspectTimes++;
         config.set("suspect_times", suspectTimes);
@@ -184,7 +184,7 @@ public class WardenData {
         config.save();
     }
 
-    public void addKickTimes(){
+    public void addKickTimes() {
         kickTimes++;
         accumulatedKickTimes++;
         config.set("kick_times", kickTimes);
@@ -193,16 +193,16 @@ public class WardenData {
     }
 
     public void addDealBugReportTime() {
-        dealBugReportTimes+=1;
-        accumulatedDealBugReportTimes+=1;
+        dealBugReportTimes += 1;
+        accumulatedDealBugReportTimes += 1;
         config.set("deal_bug_report_times", config.getInt("deal_bug_report_times", 0) + 1);
         config.set("accumulated_deal_bug_report_times", config.getInt("accumulated_deal_bug_report_times", 0) + 1);
         config.save();
     }
 
     public void addDealBypassReportTime() {
-        dealBypassReportTimes+=1;
-        accumulatedDealBypassReportTimes+=1;
+        dealBypassReportTimes += 1;
+        accumulatedDealBypassReportTimes += 1;
         config.set("deal_bypass_report_times", config.getInt("deal_bypass_report_times", 0) + 1);
         config.set("accumulated_deal_bypass_report_times", config.getInt("accumulated_deal_bypass_report_times", 0) + 1);
         config.save();
@@ -219,14 +219,14 @@ public class WardenData {
         config.save();
     }
 
-    public void addPrefix(String string){
+    public void addPrefix(String string) {
         List<String> prefixes = new ArrayList<>(config.getStringList("prefixes"));
         prefixes.add(string);
         config.set("prefixes", prefixes);
         config.save();
     }
 
-    public void removePrefix(String string){
+    public void removePrefix(String string) {
         List<String> prefixes = new ArrayList<>(config.getStringList("prefixes"));
         prefixes.remove(string);
         config.set("prefixes", prefixes);
@@ -243,7 +243,7 @@ public class WardenData {
         config.save();
     }
 
-    public void clearMonthlyWorkload(){
+    public void clearMonthlyWorkload() {
         this.dealBugReportTimes = 0;
         this.dealBypassReportTimes = 0;
         this.banTimes = 0;
@@ -259,11 +259,11 @@ public class WardenData {
         config.set("warn_times", warnTimes);
         config.set("suspect_times", suspectTimes);
         config.save();
-        Config config = new Config(MainClass.path+"/mailbox/"+this.name+".yml", Config.YAML);
+        Config config = new Config(MainClass.path + "/mailbox/" + this.name + ".yml", Config.YAML);
         List<Map<String, Object>> list = config.get("unclaimed", new ArrayList<>());
         Map<String, Object> map = new HashMap<>();
         map.put("sender", "协管团队");
-        map.put("title", Calendar.getInstance().get(Calendar.MONTH)+"月协管报告");
+        map.put("title", Calendar.getInstance().get(Calendar.MONTH) + "月协管报告");
         String builder = "\n亲爱的协管成员，感谢您又陪我们度过了一个月。在本个月中，您的绩效如下：" + "\n" +
                 "当月处理bug反馈数：" + this.getDealBugReportTimes() +
                 "\n当月处理举报数：" + this.getDealBypassReportTimes() +

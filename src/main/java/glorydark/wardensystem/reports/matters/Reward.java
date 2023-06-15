@@ -16,17 +16,17 @@ public class Reward {
 
     public List<String> commands;
 
-    public Reward(ConfigSection section){
+    public Reward(ConfigSection section) {
         this.messages = new ArrayList<>(section.getStringList("messages"));
         this.commands = new ArrayList<>(section.getStringList("commands"));
     }
 
-    public void execute(Player player){
-        for(String message: new ArrayList<>(messages)){
+    public void execute(Player player) {
+        for (String message : new ArrayList<>(messages)) {
             player.sendMessage(message.replace("{player}", player.getName()));
         }
 
-        for(String command: new ArrayList<>(commands)){
+        for (String command : new ArrayList<>(commands)) {
             Server.getInstance().dispatchCommand(new ConsoleCommandSender(), command.replace("{player}", player.getName()));
         }
     }

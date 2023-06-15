@@ -9,12 +9,12 @@ import glorydark.wardensystem.data.WardenData;
 
 public class WardenAddonListener implements Listener {
     @EventHandler
-    public void PrefixModifyMessageEvent(PrefixModifyMessageEvent event){
+    public void PrefixModifyMessageEvent(PrefixModifyMessageEvent event) {
         Player player = event.getPlayer();
         WardenData data = MainClass.wardens.get(player.getName());
-        if(data != null){
-            if(data.isShowWardenPrefix()){
-                switch (data.getLevelType()){
+        if (data != null) {
+            if (data.isShowWardenPrefix()) {
+                switch (data.getLevelType()) {
                     case ADMIN:
                         event.setDisplayedPrefix("§6§l协管主管");
                         break;

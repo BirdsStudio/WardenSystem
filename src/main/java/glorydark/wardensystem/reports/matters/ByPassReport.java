@@ -3,7 +3,7 @@ package glorydark.wardensystem.reports.matters;
 import lombok.Data;
 
 @Data
-public class ByPassReport implements Report{
+public class ByPassReport implements Report {
     public String info;
     public String player;
 
@@ -12,7 +12,7 @@ public class ByPassReport implements Report{
 
     public boolean anonymous;
 
-    public ByPassReport(String info, String player, String suspect, long millis, boolean anonymous){
+    public ByPassReport(String info, String player, String suspect, long millis, boolean anonymous) {
         this.info = info;
         this.player = player;
         this.millis = millis;

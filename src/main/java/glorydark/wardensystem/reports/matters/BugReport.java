@@ -3,7 +3,7 @@ package glorydark.wardensystem.reports.matters;
 import lombok.Data;
 
 @Data
-public class BugReport implements Report{
+public class BugReport implements Report {
 
     public String info;
 
@@ -13,7 +13,7 @@ public class BugReport implements Report{
 
     public boolean anonymous;
 
-    public BugReport(String info, String player, long millis, boolean anonymous){
+    public BugReport(String info, String player, long millis, boolean anonymous) {
         this.info = info;
         this.player = player;
         this.millis = millis;

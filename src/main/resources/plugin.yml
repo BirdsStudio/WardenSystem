@@ -2,7 +2,7 @@ name: WardenSystem
 main: glorydark.wardensystem.MainClass
 version: "1.0.1"
 author: glorydark
-api: ["1.0.0"]
+api: [ "1.0.0" ]
 description: WardenSystem
 load: POSTWORLD
 softdepend:

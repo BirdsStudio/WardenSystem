@@ -13,7 +13,7 @@ public class DealtReportInfo {
 
     public Report report;
 
-    public DealtReportInfo(String name, String warden, String comment, Report report){
+    public DealtReportInfo(String name, String warden, String comment, Report report) {
         this.name = name;
         this.warden = warden;
         this.comment = comment;
