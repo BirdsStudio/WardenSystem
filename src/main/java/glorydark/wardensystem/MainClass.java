@@ -234,10 +234,10 @@ public class MainClass extends PluginBase {
                         WardenAPI.unmute(commandSender, strings[1]);
                         break;
                     case "warn":
-                        if (strings.length < 2) {
+                        if (strings.length < 3) {
                             return true;
                         }
-                        WardenAPI.warn(commandSender, strings[1]);
+                        WardenAPI.warn(commandSender, strings[1], strings[2]);
                         break;
                     case "kick":
                         if (strings.length < 2) {

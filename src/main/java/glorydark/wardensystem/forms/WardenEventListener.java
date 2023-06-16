@@ -704,7 +704,6 @@ public class WardenEventListener implements Listener {
                         reason = selectedDropdownItem;
                     }
                 }
-                Player punished = Server.getInstance().getPlayer(punishedPn);
                 switch (response.getDropdownResponse(2).getElementID()) {
                     case 0:
                         if (response.getToggleResponse(3)) {
@@ -735,7 +734,7 @@ public class WardenEventListener implements Listener {
                         }
                         break;
                     case 2:
-                        WardenAPI.warn(player, punishedPn);
+                        WardenAPI.warn(player, punishedPn, reason);
                         break;
                     case 3:
                         WardenAPI.kick(player, punishedPn);
@@ -761,7 +760,7 @@ public class WardenEventListener implements Listener {
                 if (response == null) {
                     return;
                 }
-                StringBuilder builder = new StringBuilder("");
+                StringBuilder builder = new StringBuilder();
                 String name = response.getInputResponse(0);
                 if (!name.equals("") && Server.getInstance().lookupName(name).isPresent()) {
                     long bannedRemained = WardenAPI.getRemainedBannedTime(name);

@@ -48,7 +48,7 @@ public class WardenAPI {
         Map<String, Object> map = new HashMap<>();
         map.put("start", System.currentTimeMillis());
         if (banned.contains(player)) {
-            map.put("end", expire == -1 ? "permanent" : (expire - System.currentTimeMillis() + banCfg.getLong(player + ".end", System.currentTimeMillis())));
+            map.put("end", expire == -1 ? "permanent" : (expire - System.currentTimeMillis() + Math.max(banCfg.getLong(player + ".end", System.currentTimeMillis()), System.currentTimeMillis())));
         } else {
             map.put("end", expire == -1 ? "permanent" : expire);
         }
@@ -91,7 +91,7 @@ public class WardenAPI {
         muted.add(player);
         map.put("start", System.currentTimeMillis());
         if (muted.contains(player)) {
-            map.put("end", expire == -1 ? "permanent" : (expire - System.currentTimeMillis() + muteCfg.getLong(player + ".end", System.currentTimeMillis())));
+            map.put("end", expire == -1 ? "permanent" : (expire - System.currentTimeMillis() + Math.max(muteCfg.getLong(player + ".end", System.currentTimeMillis()), System.currentTimeMillis())));
         } else {
             map.put("end", expire == -1 ? "permanent" : expire);
         }
@@ -126,13 +126,13 @@ public class WardenAPI {
         }
     }
 
-    public static void warn(CommandSender operator, String player) {
+    public static void warn(CommandSender operator, String player, String reason) {
         Player to = Server.getInstance().getPlayer(player);
         if (to != null) {
-            to.sendMessage("§c您已被警告，请规范您的游戏行为！");
+            to.sendMessage("§c您已被警告，请规范您的游戏行为！原因："+reason);
             operator.sendMessage("§a警告已发送！");
             MainClass.log.log(Level.INFO, operator.getName() + "警告玩家 [" + player + "]");
-            broadcastMessage("§e[" + player + "] 疑似作弊被警告！");
+            broadcastMessage("§e[" + player + "] 被警告！原因："+reason);
         } else {
             operator.sendMessage("§c该玩家不存在！");
         }
@@ -157,7 +157,7 @@ public class WardenAPI {
         Map<String, Object> map = new HashMap<>();
         map.put("start", System.currentTimeMillis());
         if (MainClass.suspectList.containsKey(player)) {
-            map.put("end", expire == -1 ? "permanent" : (expire - System.currentTimeMillis() + config.getLong(player + ".end", System.currentTimeMillis())));
+            map.put("end", expire == -1 ? "permanent" : (expire - System.currentTimeMillis() + Math.max(config.getLong(player + ".end", System.currentTimeMillis()), System.currentTimeMillis())));
         } else {
             map.put("end", expire == -1 ? "permanent" : expire);
         }
