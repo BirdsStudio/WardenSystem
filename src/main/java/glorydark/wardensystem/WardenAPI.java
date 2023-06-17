@@ -62,7 +62,11 @@ public class WardenAPI {
         config.save();
         Player punished = Server.getInstance().getPlayer(player);
         if (punished != null) {
-            punished.kick("您已被封禁");
+            if(MainClass.bannedExecuteCommand.equals("")){
+                punished.kick("§c您已被封禁\n§e解封时间：" + WardenAPI.getUnBannedDate(uuid) + "\n申诉方式：前往服务器群聊申诉（432813576）");
+            }else{
+                Server.getInstance().dispatchCommand(punished, MainClass.bannedExecuteCommand.replace("{player}", punished.getName()));
+            }
         }
         String unBannedDate = WardenAPI.getUnBannedDate(player);
         MainClass.log.log(Level.INFO, operator.getName() + "封禁 [" + player + "]，解封日期：" + unBannedDate + "，原因：" + reason);

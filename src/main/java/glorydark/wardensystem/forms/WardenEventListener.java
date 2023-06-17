@@ -101,8 +101,11 @@ public class WardenEventListener implements Listener {
         String uuidString = uuid.toString();
         long bannedRemained = WardenAPI.getRemainedBannedTime(uuid);
         if (bannedRemained != 0) {
-            //player.kick("§c您已被封禁\n§e解封时间：" + WardenAPI.getUnBannedDate(uuid) + "\n申诉方式：前往服务器群聊申诉（432813576）");
-            Server.getInstance().dispatchCommand(new ConsoleCommandSender(), MainClass.bannedExecuteCommand.replace("{player}", player.getName()));
+            if(MainClass.bannedExecuteCommand.equals("")){
+                player.kick("§c您已被封禁\n§e解封时间：" + WardenAPI.getUnBannedDate(uuid) + "\n申诉方式：前往服务器群聊申诉（432813576）");
+            }else{
+                Server.getInstance().dispatchCommand(player, MainClass.bannedExecuteCommand.replace("{player}", player.getName()));
+            }
             return;
         }
         long mutedRemained = WardenAPI.getRemainedMutedTime(uuid);
