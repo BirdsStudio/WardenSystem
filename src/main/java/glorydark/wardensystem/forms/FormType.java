@@ -2,7 +2,6 @@ package glorydark.wardensystem.forms;
 
 public enum FormType {
     WardenMain,
-    WardenDealReportMain,
     WardenDealBugReportList,
     WardenDealByPassReportList,
     WardenDealBugReport,

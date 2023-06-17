@@ -29,13 +29,17 @@ public class FormMain {
     public static String noSelectedItemText = "- 未选择 -";
 
     public static void showWardenMain(Player player) {
-        WardenData data = MainClass.wardens.get(player.getName());
+        WardenData data = MainClass.staffs.get(player.getName());
         if (data == null) {
             return;
         }
-        MainClass.wardens.get(player.getName()).setDealing(null);
-        FormWindowSimple window = new FormWindowSimple("协管系统", "您好，【" + (data.getLevelType() == WardenLevelType.ADMIN ? "协管主管" : "协管员") + "】" + player.getName() + "！");
-        window.addButton(new ElementButton("处理事务"));
+        MainClass.staffs.get(player.getName()).setDealing(null);
+        FormWindowSimple window = new FormWindowSimple("协管系统", "您好，【" + (data.getLevelType() == WardenLevelType.OPStaff ? "协管主管" : "协管员") + "】" + player.getName() + "！");
+        if(data.getLevelType() == WardenLevelType.Dev){
+            window.addButton(new ElementButton("Bug反馈 " + (MainClass.bugReports.size() > 0 ? "§c§l[" + MainClass.bugReports.size() + "§r]" : "[§a§l0§r]")));
+        }else{
+            window.addButton(new ElementButton("举报 " + (MainClass.byPassReports.size() > 0 ? "§c§l[" + MainClass.byPassReports.size() + "§r]" : "[§a§l0§r]")));
+        }
         window.addButton(new ElementButton("处罚系统"));
         File file = new File(MainClass.path + "/mailbox/" + player.getName() + ".yml");
         if (file.exists()) {
@@ -50,16 +54,17 @@ public class FormMain {
             window.addButton(new ElementButton("邮箱系统 [§a§l0§r]"));
         }
         window.addButton(new ElementButton("举报/反馈bug"));
-        window.addButton(new ElementButton("实用工具"));
         window.addButton(new ElementButton("个人中心"));
-        if (data.getLevelType() == WardenLevelType.ADMIN) {
+        if (data.getLevelType() == WardenLevelType.OPStaff) {
             window.addButton(new ElementButton("管理协管"));
+        }else if(data.getLevelType() == WardenLevelType.Dev){
+            window.addButton(new ElementButton("实用工具"));
         }
         WardenEventListener.showFormWindow(player, window, FormType.WardenMain);
     }
 
     public static void showAdminManage(Player player) {
-        FormWindowSimple simple = new FormWindowSimple("管理系统", "目前协管部共有" + MainClass.wardens.size() + "位成员");
+        FormWindowSimple simple = new FormWindowSimple("管理系统", "目前协管部共有" + MainClass.staffs.size() + "位成员");
         simple.addButton(new ElementButton("添加协管"));
         simple.addButton(new ElementButton("删除协管"));
         simple.addButton(new ElementButton("查看绩效"));
@@ -71,8 +76,8 @@ public class FormMain {
         FormWindowSimple simple = new FormWindowSimple("管理系统 - 查看绩效", "");
         StringBuilder builder = new StringBuilder();
         Map<String, Integer> cacheMap = new HashMap<>();
-        for (Map.Entry<String, WardenData> entry : MainClass.wardens.entrySet()) {
-            if (entry.getValue().getLevelType() == WardenLevelType.ADMIN) {
+        for (Map.Entry<String, WardenData> entry : MainClass.staffs.entrySet()) {
+            if (entry.getValue().getLevelType() == WardenLevelType.OPStaff) {
                 continue;
             }
             cacheMap.put(entry.getKey(), entry.getValue().getDealBugReportTimes() + entry.getValue().getDealBypassReportTimes());
@@ -120,8 +125,8 @@ public class FormMain {
         FormWindowCustom window = new FormWindowCustom("管理系统 - 删除协管");
         ElementDropdown dropdown = new ElementDropdown("协管列表");
         dropdown.addOption(noSelectedItemText);
-        for (Map.Entry<String, WardenData> entry : MainClass.wardens.entrySet()) {
-            if (entry.getValue().getLevelType() != WardenLevelType.ADMIN) {
+        for (Map.Entry<String, WardenData> entry : MainClass.staffs.entrySet()) {
+            if (entry.getValue().getLevelType() != WardenLevelType.OPStaff) {
                 dropdown.addOption(entry.getKey());
             }
         }
@@ -151,9 +156,9 @@ public class FormMain {
             if (p == player) {
                 continue;
             }
-            if (MainClass.wardens.containsKey(p.getName())) {
-                WardenData data = MainClass.wardens.get(p.getName());
-                if (data.getLevelType() == WardenLevelType.ADMIN) {
+            if (MainClass.staffs.containsKey(p.getName())) {
+                WardenData data = MainClass.staffs.get(p.getName());
+                if (data.getLevelType() == WardenLevelType.OPStaff) {
                     onlinePlayers.add("§6" + p.getName());
                 } else {
                     onlinePlayers.add("§e" + p.getName());
@@ -215,7 +220,7 @@ public class FormMain {
                 window.addButton(new ElementButton("切换至观察者模式"));
                 break;
             case 3:
-                if (MainClass.wardens.get(player.getName()).getGamemodeBefore() == 0) {
+                if (MainClass.staffs.get(player.getName()).getGamemodeBefore() == 0) {
                     window.addButton(new ElementButton("切换至生存模式"));
                 } else {
                     window.addButton(new ElementButton("切换至冒险模式"));
@@ -226,14 +231,6 @@ public class FormMain {
         window.addButton(new ElementButton("查询最近数据"));
         window.addButton(new ElementButton("返回"));
         WardenEventListener.showFormWindow(player, window, FormType.WardenTools);
-    }
-
-    public static void showWardenReportTypeList(Player player) {
-        FormWindowSimple window = new FormWindowSimple("协管系统 - 处理事务类型", "您好，请选择您需要处理的事务类型！");
-        window.addButton(new ElementButton("Bug反馈 " + (MainClass.bugReports.size() > 0 ? "§c§l[" + MainClass.bugReports.size() + "§r]" : "[§a§l0§r]")));
-        window.addButton(new ElementButton("举报 " + (MainClass.byPassReports.size() > 0 ? "§c§l[" + MainClass.byPassReports.size() + "§r]" : "[§a§l0§r]")));
-        window.addButton(new ElementButton("返回"));
-        WardenEventListener.showFormWindow(player, window, FormType.WardenDealReportMain);
     }
 
     public static void showWardenBugReport(Player player, BugReport report) {
@@ -253,9 +250,9 @@ public class FormMain {
     public static void showWardenByPassReport(Player player, ByPassReport report) {
         FormWindowCustom window = new FormWindowCustom("协管系统 - 处理举报");
         window.addElement(new ElementLabel(report.anonymous ? "* 反馈玩家要求匿名，故不公布玩家昵称！" : "反馈玩家：" + report.player));
-        WardenData data = MainClass.wardens.get(report.getSuspect());
+        WardenData data = MainClass.staffs.get(report.getSuspect());
         window.addElement(new ElementLabel("事务信息：" + report.info));
-        window.addElement(new ElementLabel("被举报者：" + (data == null ? report.getSuspect() : (data.getLevelType() == WardenLevelType.ADMIN ? "§6" + report.getSuspect() + "（协管主管）" : "§e" + report.getSuspect() + "（协管）"))));
+        window.addElement(new ElementLabel("被举报者：" + (data == null ? report.getSuspect() : (data.getLevelType() == WardenLevelType.OPStaff ? "§6" + report.getSuspect() + "（协管主管）" : "§e" + report.getSuspect() + "（协管）"))));
         window.addElement(new ElementLabel("反馈时间：" + MainClass.getDate(report.millis)));
         List<String> options = new ArrayList<>();
         options.add("§a已核实");
@@ -315,7 +312,7 @@ public class FormMain {
 
     public static void showWardenProfile(Player player) {
         FormWindowCustom window = new FormWindowCustom("协管系统 - 个人信息");
-        WardenData data = MainClass.wardens.get(player.getName());
+        WardenData data = MainClass.staffs.get(player.getName());
         window.addElement(new ElementLabel("玩家名：" + (data.getPrefixes().size() > 0 ? "【" + data.getPrefixes().get(0) + "§f】" : "") + player.getName()));
         DecimalFormat format = new DecimalFormat("#.##");
         //to do: 评分正确率目前得从后台更改

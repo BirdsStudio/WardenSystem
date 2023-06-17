@@ -11,17 +11,17 @@ import lombok.Data;
 @AllArgsConstructor
 public class SuspectData {
 
-    String name;
+    String uuid;
 
     long startMillis;
 
     long endMillis;
 
     public void sendSuspectTips() {
-        MainClass.wardens.keySet().forEach(s -> {
+        MainClass.staffs.keySet().forEach(s -> {
             Player player = Server.getInstance().getPlayer(s);
             if (player != null) {
-                player.sendMessage("§c嫌疑玩家【" + name + "】已上线！");
+                player.sendMessage("§c嫌疑玩家【" + uuid + "】已上线！");
             }
         });
     }
@@ -31,8 +31,8 @@ public class SuspectData {
             return true;
         }
         if (System.currentTimeMillis() >= endMillis) {
-            Config suspects = new Config(MainClass.path + "/suspects.yml", Config.YAML);
-            suspects.remove(name);
+            Config suspects = new Config(MainClass.path + "/suspects/"+ uuid +".yml", Config.YAML);
+            suspects.remove(uuid);
             suspects.save();
             return false;
         }

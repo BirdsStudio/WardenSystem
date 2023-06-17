@@ -11,14 +11,14 @@ public class WardenAddonListener implements Listener {
     @EventHandler
     public void PrefixModifyMessageEvent(PrefixModifyMessageEvent event) {
         Player player = event.getPlayer();
-        WardenData data = MainClass.wardens.get(player.getName());
+        WardenData data = MainClass.staffs.get(player.getName());
         if (data != null) {
             if (data.isShowWardenPrefix()) {
                 switch (data.getLevelType()) {
-                    case ADMIN:
+                    case OPStaff:
                         event.setDisplayedPrefix("§6§l协管主管");
                         break;
-                    case NORMAL:
+                    case Staff:
                         event.setDisplayedPrefix("§6§l玩家协管");
                         break;
                 }

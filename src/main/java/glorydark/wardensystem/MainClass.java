@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class MainClass extends PluginBase {
 
-    public static HashMap<String, WardenData> wardens = new HashMap<>();
+    public static HashMap<String, WardenData> staffs = new HashMap<>();
 
     public static List<BugReport> bugReports = new ArrayList<>();
 
@@ -51,6 +51,8 @@ public class MainClass extends PluginBase {
 
     public static List<String> forbid_modify_worlds;
 
+    public static String bannedExecuteCommand;
+
     @Override
     public void onLoad() {
         this.getLogger().info("WardenSystem 正在加载！");
@@ -71,24 +73,33 @@ public class MainClass extends PluginBase {
         log.addHandler(fileHandler);
         new File(path + "/bugreports/").mkdirs();
         new File(path + "/bypassreports/").mkdirs();
-        new File(path + "/wardens/").mkdirs();
+        new File(path + "/staffs/").mkdirs();
         new File(path + "/mailbox/").mkdirs();
         this.saveResource("config.yml", false);
         this.saveResource("rewards.yml", false);
         Config config = new Config(path + "/config.yml", Config.YAML);
         forbid_modify_worlds = new ArrayList<>(config.getStringList("forbid_modify_worlds"));
-        for (String player : new ArrayList<>(config.getStringList("admins"))) {
-            WardenData data = new WardenData(player, null, new Config(path + "/wardens/" + player + ".yml", Config.YAML));
-            data.setLevelType(WardenLevelType.ADMIN);
-            wardens.put(player, data);
+        bannedExecuteCommand = config.getString("banned_execute_command", "");
+        for (String player : new ArrayList<>(config.getStringList("devs"))) {
+            WardenData data = new WardenData(player, null, new Config(path + "/staffs/" + player + ".yml", Config.YAML));
+            data.setLevelType(WardenLevelType.Dev);
+            staffs.put(player, data);
         }
-        for (String player : new ArrayList<>(config.getStringList("wardens"))) {
-            if (wardens.containsKey(player)) {
+        for (String player : new ArrayList<>(config.getStringList("opstaffs"))) {
+            if (staffs.containsKey(player)) {
                 continue;
             }
-            WardenData data = new WardenData(player, null, new Config(path + "/wardens/" + player + ".yml", Config.YAML));
-            data.setLevelType(WardenLevelType.NORMAL);
-            wardens.put(player, data);
+            WardenData data = new WardenData(player, null, new Config(path + "/staffs/" + player + ".yml", Config.YAML));
+            data.setLevelType(WardenLevelType.OPStaff);
+            staffs.put(player, data);
+        }
+        for (String player : new ArrayList<>(config.getStringList("staffs"))) {
+            if (staffs.containsKey(player)) {
+                continue;
+            }
+            WardenData data = new WardenData(player, null, new Config(path + "/staffs/" + player + ".yml", Config.YAML));
+            data.setLevelType(WardenLevelType.Staff);
+            staffs.put(player, data);
         }
         for (File file : Objects.requireNonNull(new File(path + "/bugreports/").listFiles())) {
             if (file.isDirectory()) {
@@ -108,17 +119,21 @@ public class MainClass extends PluginBase {
             ByPassReport report = new ByPassReport(brc.getString("info"), brc.getString("player"), brc.getString("suspect"), Long.parseLong(filename), brc.getBoolean("anonymous"));
             byPassReports.add(report);
         }
-        muted.addAll(new ArrayList<>(new Config(path + "/mute.yml", Config.YAML).getKeys(false)));
-        Config suspects = new Config(path + "/suspects.yml", Config.YAML);
-        for (String s : new ArrayList<>(suspects.getKeys(false))) {
-            long end = suspects.getLong(s + ".end");
+        for(File file: Objects.requireNonNull(new File(path + "/mute/").listFiles())){
+            muted.add(file.getName().replace(".yml", ""));
+        }
+        File suspects = new File(path + "/suspect/");
+
+        for (File suspectFile : Objects.requireNonNull(suspects.listFiles())) {
+            String uuid = suspectFile.getName().replace(".yml", "");
+            Config suspectCfg = new Config(suspectFile, Config.YAML);
+            long end = suspectCfg.getLong("end");
             if (System.currentTimeMillis() >= end) {
-                suspects.remove(s);
+                suspectFile.delete();
                 continue;
             }
-            suspectList.put(s, new SuspectData(s, suspects.getLong(s + ".start"), end));
+            suspectList.put(uuid, new SuspectData(uuid, suspectCfg.getLong("start"), end));
         }
-        suspects.save();
         Config rewardCfg = new Config(path + "/rewards.yml", Config.YAML);
         rewards.put("无奖励", new Reward(new ConfigSection()));
         for (String key : rewardCfg.getKeys(false)) {
@@ -163,51 +178,86 @@ public class MainClass extends PluginBase {
         @Override
         public boolean execute(CommandSender commandSender, String s, String[] strings) {
             if (commandSender.isPlayer()) {
-                if (wardens.containsKey(commandSender.getName())) {
+                if (staffs.containsKey(commandSender.getName())) {
                     FormMain.showWardenMain((Player) commandSender);
                 } else {
                     FormMain.showPlayerMain((Player) commandSender);
                 }
             } else {
                 switch (strings[0]) {
-                    case "admin":
+                    case "add":
                         if (strings.length < 2) {
                             return true;
                         }
-                        if (!Server.getInstance().lookupName(strings[1]).isPresent()) {
+                        if (!Server.getInstance().lookupName(strings[2]).isPresent()) {
                             commandSender.sendMessage("§c找不到玩家！");
                             return true;
                         }
                         Config config = new Config(path + "/config.yml", Config.YAML);
                         List<String> admins = new ArrayList<>(config.getStringList("admins"));
-                        if (admins.contains(strings[1])) {
-                            admins.remove(strings[1]);
-                            commandSender.sendMessage("§a成功取消玩家【" + strings[1] + "】协管主管权限！");
-                            log.log(Level.INFO, "CONSOLE执行：/warden admin " + strings[1] + "，§a成功取消玩家【" + strings[1] + "】协管主管权限！");
-                            return true;
+                        List<String> staffs = new ArrayList<>(config.getStringList("staffs"));
+                        List<String> devs = new ArrayList<>(config.getStringList("devs"));
+                        switch (strings[1]){
+                            case "opstaff":
+                                staffs.remove(strings[2]);
+                                devs.remove(strings[2]);
+                                admins.add(strings[2]);
+                                commandSender.sendMessage("§a成功为玩家【" + strings[2] + "】赋予协管主管权限！");
+                                log.log(Level.INFO, "CONSOLE成功为玩家【" + strings[2] + "】赋予协管主管权限！");
+                                break;
+                            case "staff":
+                                staffs.add(strings[2]);
+                                devs.remove(strings[2]);
+                                admins.remove(strings[2]);
+                                commandSender.sendMessage("§a成功为玩家【" + strings[2] + "】赋予协管权限！");
+                                log.log(Level.INFO, "CONSOLE成功为玩家【" + strings[2] + "】赋予协管权限！");
+                                break;
+                            case "dev":
+                                staffs.remove(strings[2]);
+                                devs.add(strings[2]);
+                                admins.remove(strings[2]);
+                                commandSender.sendMessage("§a成功为玩家【" + strings[2] + "】赋予测试员权限！");
+                                log.log(Level.INFO, "CONSOLE成功为玩家【" + strings[2] + "】赋予测试员权限！");
+                                break;
                         }
-                        List<String> wardens = new ArrayList<>(config.getStringList("wardens"));
-                        if (wardens.contains(strings[1])) {
-                            wardens.remove(strings[1]);
-                            config.set("wardens", wardens);
-                        }
-                        admins.add(strings[1]);
                         config.set("admins", admins);
+                        config.set("devs", devs);
+                        config.set("staffs", staffs);
                         config.save();
-                        commandSender.sendMessage("§a成功为玩家【" + strings[1] + "】赋予协管主管权限！");
-                        log.log(Level.INFO, "CONSOLE执行：/warden admin " + strings[1] + "，§a成功为玩家【" + strings[1] + "】赋予协管主管权限！");
-                        break;
-                    case "add":
-                        if (strings.length < 2) {
-                            return true;
-                        }
-                        WardenAPI.addWarden(commandSender, strings[1]);
                         break;
                     case "remove":
                         if (strings.length < 2) {
                             return true;
                         }
-                        WardenAPI.removeWarden(commandSender, strings[1]);
+                        if (!Server.getInstance().lookupName(strings[2]).isPresent()) {
+                            commandSender.sendMessage("§c找不到玩家！");
+                            return true;
+                        }
+                        config = new Config(path + "/config.yml", Config.YAML);
+                        admins = new ArrayList<>(config.getStringList("admins"));
+                        staffs = new ArrayList<>(config.getStringList("staffs"));
+                        devs = new ArrayList<>(config.getStringList("devs"));
+                        switch (strings[1]){
+                            case "opstaff":
+                                admins.remove(strings[2]);
+                                commandSender.sendMessage("§a成功解除玩家【" + strings[2] + "】协管主管权限！");
+                                log.log(Level.INFO, "CONSOLE解除玩家【" + strings[2] + "】协管主管权限！");
+                                break;
+                            case "staff":
+                                staffs.remove(strings[2]);
+                                commandSender.sendMessage("§a成功解除玩家【" + strings[2] + "】协管权限！");
+                                log.log(Level.INFO, "CONSOLE解除玩家【" + strings[2] + "】协管权限！");
+                                break;
+                            case "dev":
+                                devs.remove(strings[2]);
+                                commandSender.sendMessage("§a成功解除【" + strings[2] + "】测试员权限！");
+                                log.log(Level.INFO, "CONSOLE解除【" + strings[2] + "】测试员权限！");
+                                break;
+                        }
+                        config.set("admins", admins);
+                        config.set("devs", devs);
+                        config.set("staffs", staffs);
+                        config.save();
                         break;
                     case "ban":
                         if (strings.length < 2) {
@@ -264,19 +314,19 @@ public class MainClass extends PluginBase {
                         }
                         break;
                     case "refreshworkload":
-                        if (MainClass.wardens.size() > 0) {
-                            for (WardenData value : MainClass.wardens.values()) {
+                        if (MainClass.staffs.size() > 0) {
+                            for (WardenData value : MainClass.staffs.values()) {
                                 value.clearMonthlyWorkload();
                                 commandSender.sendMessage("已经成功清空当前绩效，协管绩效报告已发送给各位协管！");
                             }
                         }
                         break;
                     case "workload":
-                        if (MainClass.wardens.size() > 0) {
+                        if (MainClass.staffs.size() > 0) {
                             log.log(Level.INFO, "CONSOLE执行：/warden workload");
                             Map<String, Integer> cacheMap = new HashMap<>();
-                            for (Map.Entry<String, WardenData> entry : MainClass.wardens.entrySet()) {
-                                if (entry.getValue().getLevelType() == WardenLevelType.ADMIN) {
+                            for (Map.Entry<String, WardenData> entry : MainClass.staffs.entrySet()) {
+                                if (entry.getValue().getLevelType() == WardenLevelType.OPStaff) {
                                     continue;
                                 }
                                 cacheMap.put(entry.getKey(), entry.getValue().getDealBugReportTimes() + entry.getValue().getDealBugReportTimes());
