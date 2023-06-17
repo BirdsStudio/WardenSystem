@@ -1,9 +1,7 @@
 command: "r"
 dev: []
-opstaffs:
-  - "OrthoRelic17176"
-staffs:
-  - "BizarreDark"
+opstaffs: []
+staffs: []
 forbid_modify_worlds:
   - world
-banned_execute_command: "/wtransfer hackerpixel"
+banned_execute_command: ""
