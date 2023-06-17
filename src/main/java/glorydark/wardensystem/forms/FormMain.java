@@ -337,10 +337,6 @@ public class FormMain {
                         + "\n累计踢出玩家：" + data.getAccumulatedKickTimes()
         )); // To do
         window.addElement(new ElementLabel("入职时间：" + data.getJoinTime()));
-        List<String> prefixes = new ArrayList<>(data.getPrefixes());
-        prefixes.add(noSelectedItemText);
-        window.addElement(new ElementDropdown("更改称号显示", prefixes));
-        window.addElement(new ElementToggle("开启协管称号显示", data.isShowWardenPrefix()));
         WardenEventListener.showFormWindow(player, window, FormType.WardenPersonalInfo);
     }
 

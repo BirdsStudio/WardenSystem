@@ -552,38 +552,6 @@ public class WardenEventListener implements Listener {
                 MainClass.log.log(Level.INFO, "操作员[" + player.getName() + "]处理举报完毕，具体信息详见：bypassreports/" + saveName1 + ".yml");
                 MainClass.staffs.get(player.getName()).setDealing(null);
                 break;
-            case WardenPersonalInfo:
-                if (response == null) {
-                    return;
-                }
-                WardenData data = MainClass.staffs.get(player.getName());
-                boolean show = response.getToggleResponse(6);
-                if (show != data.isShowWardenPrefix()) {
-                    data.setShowWardenPrefix(show);
-                    player.sendMessage("§a* 成功设置协管称号显示为：" + show);
-                }
-                if (response.getDropdownResponse(5).getElementContent().equals(FormMain.noSelectedItemText)) {
-                    return;
-                }
-                List<String> old = data.getPrefixes();
-                if (old.size() > 1) {
-                    String selectPrefix = response.getDropdownResponse(5).getElementContent();
-                    if (!old.get(0).equals(selectPrefix)) {
-                        List<String> newRank = new ArrayList<>();
-                        newRank.add(selectPrefix);
-                        for (String prefix : old) {
-                            if (!prefix.equals(selectPrefix)) {
-                                newRank.add(prefix);
-                            }
-                        }
-                        Config personalConfig = data.getConfig();
-                        personalConfig.set("prefixes", newRank);
-                        personalConfig.save();
-                        data.setPrefixes(newRank);
-                        player.sendMessage("§a已保存称号设置！");
-                    }
-                }
-                break;
             case PlayerBugReport:
                 if (response == null) {
                     return;
