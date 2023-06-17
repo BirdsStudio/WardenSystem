@@ -62,7 +62,7 @@ public class WardenAPI {
         }
         String unBannedDate = WardenAPI.getUnBannedDate(player);
         MainClass.log.log(Level.INFO, operator.getName() + "封禁 [" + player + "]，解封日期：" + unBannedDate + "，原因：" + reason);
-        operator.sendMessage("§a成功封禁玩家【" + player + "】！\n解封日期:" + WardenAPI.getUnBannedDate(player));
+        operator.sendMessage("§a成功封禁玩家【" + player + "】！解封日期:" + WardenAPI.getUnBannedDate(player));
         // 向所有在线玩家广播封禁消息
         broadcastMessage("§e[" + player + "] 因游戏作弊被打入小黑屋！");
     }
@@ -106,7 +106,7 @@ public class WardenAPI {
         }
         String unMutedDate = WardenAPI.getUnMutedDate(player);
         MainClass.log.log(Level.INFO, operator.getName() + "禁言玩家 [" + player + "]，解封日期：" + unMutedDate + "，原因：" + reason);
-        operator.sendMessage("§a成功禁言玩家【" + player + "】\n解封时间:" + unMutedDate + "！");
+        operator.sendMessage("§a成功禁言玩家【" + player + "】！解封时间:" + unMutedDate + "！");
         // 向所有在线玩家广播封禁消息
         broadcastMessage("§e[" + player + "] 因违规发言被禁止发言！");
     }
