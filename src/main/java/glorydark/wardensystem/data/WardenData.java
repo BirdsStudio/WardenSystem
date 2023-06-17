@@ -83,7 +83,7 @@ public class WardenData {
         this.vetoedTimes = config.getInt("vetoed_times", 0);
         this.allGradesFromPlayers = config.getInt("all_grades_from_players", 5);
         this.gradePlayerCounts = config.getInt("grade_player_counts", 0);
-        this.joinTime = MainClass.getDate(config.getLong("join_time"));
+        this.joinTime = MainClass.getDate(config.getLong("join_time", System.currentTimeMillis()));
         this.showWardenPrefix = config.getBoolean("show_warden_prefix", true);
         this.fixConfig();
     }

@@ -18,7 +18,7 @@ public class SuspectData {
     long endMillis;
 
     public void sendSuspectTips() {
-        MainClass.staffs.keySet().forEach(s -> {
+        MainClass.staffData.keySet().forEach(s -> {
             Player player = Server.getInstance().getPlayer(s);
             if (player != null) {
                 player.sendMessage("§c嫌疑玩家【" + uuid + "】已上线！");

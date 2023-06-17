@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 public class MainClass extends PluginBase {
 
-    public static HashMap<String, WardenData> staffs = new HashMap<>();
+    public static HashMap<String, WardenData> staffData = new HashMap<>();
 
     public static List<BugReport> bugReports = new ArrayList<>();
 
@@ -73,6 +73,9 @@ public class MainClass extends PluginBase {
         new File(path + "/bugreports/").mkdirs();
         new File(path + "/bypassreports/").mkdirs();
         new File(path + "/staffs/").mkdirs();
+        new File(path + "/ban/").mkdirs();
+        new File(path + "/mute/").mkdirs();
+        new File(path + "/suspect/").mkdirs();
         new File(path + "/mailbox/").mkdirs();
         this.saveResource("config.yml", false);
         this.saveResource("rewards.yml", false);
@@ -82,23 +85,23 @@ public class MainClass extends PluginBase {
         for (String player : new ArrayList<>(config.getStringList("devs"))) {
             WardenData data = new WardenData(player, null, new Config(path + "/staffs/" + player + ".yml", Config.YAML));
             data.setLevelType(WardenLevelType.Dev);
-            staffs.put(player, data);
+            staffData.put(player, data);
         }
         for (String player : new ArrayList<>(config.getStringList("opstaffs"))) {
-            if (staffs.containsKey(player)) {
+            if (staffData.containsKey(player)) {
                 continue;
             }
             WardenData data = new WardenData(player, null, new Config(path + "/staffs/" + player + ".yml", Config.YAML));
             data.setLevelType(WardenLevelType.OPStaff);
-            staffs.put(player, data);
+            staffData.put(player, data);
         }
         for (String player : new ArrayList<>(config.getStringList("staffs"))) {
-            if (staffs.containsKey(player)) {
+            if (staffData.containsKey(player)) {
                 continue;
             }
             WardenData data = new WardenData(player, null, new Config(path + "/staffs/" + player + ".yml", Config.YAML));
             data.setLevelType(WardenLevelType.Staff);
-            staffs.put(player, data);
+            staffData.put(player, data);
         }
         for (File file : Objects.requireNonNull(new File(path + "/bugreports/").listFiles())) {
             if (file.isDirectory()) {
@@ -176,7 +179,7 @@ public class MainClass extends PluginBase {
         @Override
         public boolean execute(CommandSender commandSender, String s, String[] strings) {
             if (commandSender.isPlayer()) {
-                if (staffs.containsKey(commandSender.getName())) {
+                if (staffData.containsKey(commandSender.getName())) {
                     FormMain.showWardenMain((Player) commandSender);
                 } else {
                     FormMain.showPlayerMain((Player) commandSender);
@@ -200,6 +203,13 @@ public class MainClass extends PluginBase {
                                 staffs.remove(strings[2]);
                                 devs.remove(strings[2]);
                                 admins.add(strings[2]);
+                                if(staffData.containsKey(strings[2])){
+                                    staffData.get(strings[2]).setLevelType(WardenLevelType.OPStaff);
+                                }else{
+                                    WardenData data = new WardenData(strings[2], null, new Config(path+"/staffs/"+strings[2]+".yml", Config.YAML));
+                                    data.setLevelType(WardenLevelType.OPStaff);
+                                    staffData.put(strings[2], data);
+                                }
                                 commandSender.sendMessage("§a成功为玩家【" + strings[2] + "】赋予协管主管权限！");
                                 log.log(Level.INFO, "CONSOLE成功为玩家【" + strings[2] + "】赋予协管主管权限！");
                                 break;
@@ -207,6 +217,13 @@ public class MainClass extends PluginBase {
                                 staffs.add(strings[2]);
                                 devs.remove(strings[2]);
                                 admins.remove(strings[2]);
+                                if(staffData.containsKey(strings[2])){
+                                    staffData.get(strings[2]).setLevelType(WardenLevelType.Staff);
+                                }else{
+                                    WardenData data = new WardenData(strings[2], null, new Config(path+"/staffs/"+strings[2]+".yml", Config.YAML));
+                                    data.setLevelType(WardenLevelType.Staff);
+                                    staffData.put(strings[2], data);
+                                }
                                 commandSender.sendMessage("§a成功为玩家【" + strings[2] + "】赋予协管权限！");
                                 log.log(Level.INFO, "CONSOLE成功为玩家【" + strings[2] + "】赋予协管权限！");
                                 break;
@@ -214,6 +231,13 @@ public class MainClass extends PluginBase {
                                 staffs.remove(strings[2]);
                                 devs.add(strings[2]);
                                 admins.remove(strings[2]);
+                                if(staffData.containsKey(strings[2])){
+                                    staffData.get(strings[2]).setLevelType(WardenLevelType.Dev);
+                                }else{
+                                    WardenData data = new WardenData(strings[2], null, new Config(path+"/staffs/"+strings[2]+".yml", Config.YAML));
+                                    data.setLevelType(WardenLevelType.Dev);
+                                    staffData.put(strings[2], data);
+                                }
                                 commandSender.sendMessage("§a成功为玩家【" + strings[2] + "】赋予测试员权限！");
                                 log.log(Level.INFO, "CONSOLE成功为玩家【" + strings[2] + "】赋予测试员权限！");
                                 break;
@@ -238,16 +262,19 @@ public class MainClass extends PluginBase {
                         switch (strings[1]){
                             case "opstaff":
                                 admins.remove(strings[2]);
+                                staffData.remove(strings[2]);
                                 commandSender.sendMessage("§a成功解除玩家【" + strings[2] + "】协管主管权限！");
                                 log.log(Level.INFO, "CONSOLE解除玩家【" + strings[2] + "】协管主管权限！");
                                 break;
                             case "staff":
                                 staffs.remove(strings[2]);
+                                staffData.remove(strings[2]);
                                 commandSender.sendMessage("§a成功解除玩家【" + strings[2] + "】协管权限！");
                                 log.log(Level.INFO, "CONSOLE解除玩家【" + strings[2] + "】协管权限！");
                                 break;
                             case "dev":
                                 devs.remove(strings[2]);
+                                staffData.remove(strings[2]);
                                 commandSender.sendMessage("§a成功解除【" + strings[2] + "】测试员权限！");
                                 log.log(Level.INFO, "CONSOLE解除【" + strings[2] + "】测试员权限！");
                                 break;
@@ -312,18 +339,18 @@ public class MainClass extends PluginBase {
                         }
                         break;
                     case "refreshworkload":
-                        if (MainClass.staffs.size() > 0) {
-                            for (WardenData value : MainClass.staffs.values()) {
+                        if (MainClass.staffData.size() > 0) {
+                            for (WardenData value : MainClass.staffData.values()) {
                                 value.clearMonthlyWorkload();
                                 commandSender.sendMessage("已经成功清空当前绩效，协管绩效报告已发送给各位协管！");
                             }
                         }
                         break;
                     case "workload":
-                        if (MainClass.staffs.size() > 0) {
+                        if (MainClass.staffData.size() > 0) {
                             log.log(Level.INFO, "CONSOLE执行：/warden workload");
                             Map<String, Integer> cacheMap = new HashMap<>();
-                            for (Map.Entry<String, WardenData> entry : MainClass.staffs.entrySet()) {
+                            for (Map.Entry<String, WardenData> entry : MainClass.staffData.entrySet()) {
                                 if (entry.getValue().getLevelType() == WardenLevelType.OPStaff) {
                                     continue;
                                 }
