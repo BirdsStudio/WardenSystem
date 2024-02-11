@@ -199,7 +199,7 @@ public class MainClass extends PluginBase {
                         List<String> staffs = new ArrayList<>(config.getStringList("staffs"));
                         List<String> devs = new ArrayList<>(config.getStringList("devs"));
                         switch (strings[1]) {
-                            case "opstaff":
+                            case "admin":
                                 staffs.remove(strings[2]);
                                 devs.remove(strings[2]);
                                 admins.add(strings[2]);
