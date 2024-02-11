@@ -101,9 +101,9 @@ public class WardenEventListener implements Listener {
         String uuidString = uuid.toString();
         long bannedRemained = WardenAPI.getRemainedBannedTime(uuid);
         if (bannedRemained != 0) {
-            if(MainClass.bannedExecuteCommand.equals("")){
+            if (MainClass.bannedExecuteCommand.equals("")) {
                 player.kick("§c您已被封禁\n§e解封时间：" + WardenAPI.getUnBannedDate(uuid) + "\n申诉方式：前往服务器群聊申诉（432813576）");
-            }else{
+            } else {
                 Server.getInstance().dispatchCommand(player, MainClass.bannedExecuteCommand.replace("{player}", player.getName()));
             }
             return;
@@ -216,9 +216,9 @@ public class WardenEventListener implements Listener {
             case WardenMain:
                 switch (id) {
                     case 0:
-                        if(window.getResponse().getClickedButton().getText().startsWith("举报")){
+                        if (window.getResponse().getClickedButton().getText().startsWith("举报")) {
                             FormMain.showWardenReportList(player, FormType.WardenDealByPassReportList);
-                        }else{
+                        } else {
                             FormMain.showWardenReportList(player, FormType.WardenDealBugReportList);
                         }
                         break;
@@ -235,13 +235,17 @@ public class WardenEventListener implements Listener {
                         FormMain.showWardenProfile(player);
                         break;
                     case 5:
-                        switch (window.getResponse().getClickedButton().getText()){
+                        switch (window.getResponse().getClickedButton().getText()) {
                             case "管理协管":
                                 FormMain.showAdminManage(player);
                                 break;
                             case "实用工具":
                                 FormMain.showUsefulTools(player);
                                 break;
+                        }
+                    case 6:
+                        if ("实用工具".equals(window.getResponse().getClickedButton().getText())) {
+                            FormMain.showUsefulTools(player);
                         }
                         break;
                 }
@@ -540,7 +544,7 @@ public class WardenEventListener implements Listener {
                             , "感谢您向协管团队举报违规玩家！"
                             , "非常感谢您帮助我们维护本服务器的环境", reward.getCommands(), reward.getMessages());
                     WardenData data = MainClass.staffData.get(byPassReport.getSuspect());
-                    FormMain.showWardenPunish(player, (data != null ? (data.getLevelType() == WardenLevelType.OPStaff ? "§6" : "§e") : "") + byPassReport.getSuspect());
+                    FormMain.showWardenPunish(player, (data != null ? (data.getLevelType() == WardenLevelType.ADMIN ? "§6" : "§e") : "") + byPassReport.getSuspect());
                 } else {
                     WardenAPI.sendMail("协管团队",
                             byPassReport.getPlayer()
@@ -594,8 +598,8 @@ public class WardenEventListener implements Listener {
                 } else {
                     suspect = response.getInputResponse(0);
                 }
-                if(!Server.getInstance().lookupName(suspect).isPresent()){
-                    player.sendMessage("§c玩家不存在："+suspect);
+                if (!Server.getInstance().lookupName(suspect).isPresent()) {
+                    player.sendMessage("§c玩家不存在：" + suspect);
                     return;
                 }
                 if (!bypassInfo.equals("") && !suspect.equals("") && !suspect.equals(FormMain.noSelectedItemText)) {
@@ -772,9 +776,9 @@ public class WardenEventListener implements Listener {
                     }
                     Config config = new Config(MainClass.path + "/config.yml", Config.YAML);
                     List<String> staffs = new ArrayList<>(config.getStringList("staffs"));
-                    if(staffs.contains(pn)){
+                    if (staffs.contains(pn)) {
                         FormMain.showReportReturnMenu("§c该玩家已是协管！", player, FormType.AdminAddWardenReturn);
-                    }else{
+                    } else {
                         staffs.add(pn);
                         config.set("staffs", staffs);
                         config.save();
@@ -795,9 +799,9 @@ public class WardenEventListener implements Listener {
                     }
                     Config config = new Config(MainClass.path + "/config.yml", Config.YAML);
                     List<String> staffs = new ArrayList<>(config.getStringList("staffs"));
-                    if(!staffs.contains(pn)){
+                    if (!staffs.contains(pn)) {
                         FormMain.showReportReturnMenu("§c该玩家不是协管！", player, FormType.AdminRemoveWardenReturn);
-                    }else{
+                    } else {
                         staffs.remove(pn);
                         config.set("staffs", staffs);
                         config.save();

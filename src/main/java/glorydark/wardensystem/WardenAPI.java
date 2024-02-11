@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.Config;
-import glorydark.wardensystem.data.WardenData;
 
 import java.io.File;
 import java.util.*;
@@ -40,31 +39,31 @@ public class WardenAPI {
 
     public static void ban(CommandSender operator, String player, String reason, long expire) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             operator.sendMessage("该玩家不存在！");
             return;
         }
-        Config config = new Config(MainClass.path+"/ban/"+uuid+".yml", Config.YAML);
+        Config config = new Config(MainClass.path + "/ban/" + uuid + ".yml", Config.YAML);
         config.set("name", player);
         config.set("start", System.currentTimeMillis());
-        if(config.exists("end")){
+        if (config.exists("end")) {
             long end = config.getLong("end");
-            if(System.currentTimeMillis() >= end) {
+            if (System.currentTimeMillis() >= end) {
                 config.set("end", expire == -1 ? "permanent" : expire);
-            }else{
+            } else {
                 config.set("end", expire == -1 ? "permanent" : config.getLong("end") - System.currentTimeMillis() + expire);
             }
-        }else{
-            config.set("end", expire == -1? "permanent": expire);
+        } else {
+            config.set("end", expire == -1 ? "permanent" : expire);
         }
         config.set("reason", reason);
         config.set("operator", operator);
         config.save();
         Player punished = Server.getInstance().getPlayer(player);
         if (punished != null) {
-            if(MainClass.bannedExecuteCommand.equals("")){
+            if (MainClass.bannedExecuteCommand.equals("")) {
                 punished.kick("§c您已被封禁\n§e解封时间：" + WardenAPI.getUnBannedDate(uuid) + "\n申诉方式：前往服务器群聊申诉（432813576）");
-            }else{
+            } else {
                 Server.getInstance().dispatchCommand(punished, MainClass.bannedExecuteCommand.replace("{player}", punished.getName()));
             }
         }
@@ -77,11 +76,11 @@ public class WardenAPI {
 
     public static void unban(CommandSender operator, String player) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             operator.sendMessage("该玩家不存在！");
             return;
         }
-        File banCfg = new File(MainClass.path + "/ban/"+ uuid +".yml");
+        File banCfg = new File(MainClass.path + "/ban/" + uuid + ".yml");
         if (banCfg.exists()) {
             banCfg.delete();
             operator.sendMessage("§a成功解封玩家【" + player + "】！");
@@ -93,22 +92,22 @@ public class WardenAPI {
 
     public static void mute(CommandSender operator, String player, String reason, long expire) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             operator.sendMessage("该玩家不存在！");
             return;
         }
-        Config config = new Config(MainClass.path+"/mute/"+uuid+".yml", Config.YAML);
+        Config config = new Config(MainClass.path + "/mute/" + uuid + ".yml", Config.YAML);
         config.set("name", player);
         config.set("start", System.currentTimeMillis());
-        if(config.exists("end")){
+        if (config.exists("end")) {
             long end = config.getLong("end");
-            if(System.currentTimeMillis() >= end) {
+            if (System.currentTimeMillis() >= end) {
                 config.set("end", expire == -1 ? "permanent" : expire);
-            }else{
+            } else {
                 config.set("end", expire == -1 ? "permanent" : config.getLong("end") - System.currentTimeMillis() + expire);
             }
-        }else{
-            config.set("end", expire == -1? "permanent": expire);
+        } else {
+            config.set("end", expire == -1 ? "permanent" : expire);
         }
         config.set("reason", reason);
         config.set("operator", operator);
@@ -127,11 +126,11 @@ public class WardenAPI {
 
     public static void unmute(CommandSender operator, String player) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             operator.sendMessage("该玩家不存在！");
             return;
         }
-        File muteCfg = new File(MainClass.path + "/mute/"+ uuid +".yml");
+        File muteCfg = new File(MainClass.path + "/mute/" + uuid + ".yml");
         if (muteCfg.exists()) {
             muteCfg.delete();
             operator.sendMessage("§a成功帮玩家【" + player + "】解除禁言！");
@@ -144,10 +143,10 @@ public class WardenAPI {
     public static void warn(CommandSender operator, String player, String reason) {
         Player to = Server.getInstance().getPlayer(player);
         if (to != null) {
-            to.sendMessage("§c您已被警告，请规范您的游戏行为！原因："+reason);
+            to.sendMessage("§c您已被警告，请规范您的游戏行为！原因：" + reason);
             operator.sendMessage("§a警告已发送！");
             MainClass.log.log(Level.INFO, operator.getName() + "警告玩家 [" + player + "]");
-            broadcastMessage("§e[" + player + "] 被警告！原因："+reason);
+            broadcastMessage("§e[" + player + "] 被警告！原因：" + reason);
         } else {
             operator.sendMessage("§c该玩家不存在！");
         }
@@ -167,43 +166,43 @@ public class WardenAPI {
 
     public static void suspect(CommandSender operator, String player, String reason, long expire) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             operator.sendMessage("该玩家不存在！");
             return;
         }
-        Config config = new Config(MainClass.path+"/suspect/"+uuid+".yml", Config.YAML);
+        Config config = new Config(MainClass.path + "/suspect/" + uuid + ".yml", Config.YAML);
         config.set("name", player);
         config.set("start", System.currentTimeMillis());
-        if(config.exists("end")){
+        if (config.exists("end")) {
             long end = config.getLong("end");
-            if(System.currentTimeMillis() >= end) {
+            if (System.currentTimeMillis() >= end) {
                 config.set("end", expire == -1 ? "permanent" : expire);
-            }else{
+            } else {
                 config.set("end", expire == -1 ? "permanent" : config.getLong("end") - System.currentTimeMillis() + expire);
             }
-        }else{
-            config.set("end", expire == -1? "permanent": expire);
+        } else {
+            config.set("end", expire == -1 ? "permanent" : expire);
         }
         config.set("reason", reason);
         config.set("operator", operator);
         config.save();
         Player punished = Server.getInstance().getPlayer(player);
         if (punished != null) {
-            punished.sendMessage("§e您已被加入怀疑玩家名单，原因："+reason);
+            punished.sendMessage("§e您已被加入怀疑玩家名单，原因：" + reason);
         }
         MainClass.log.log(Level.INFO, operator.getName() + "将 [" + player + "] 加入嫌疑名单，解除日期：" + getSuspectDate(player) + "，原因：" + reason);
-        operator.sendMessage("§a玩家【" + player + "】被加入怀疑玩家名单！原因："+reason);
+        operator.sendMessage("§a玩家【" + player + "】被加入怀疑玩家名单！原因：" + reason);
         // 向所有在线玩家广播封禁消息
-        broadcastMessage("§e[" + player + "] 被加入嫌疑名单！原因："+reason);
+        broadcastMessage("§e[" + player + "] 被加入嫌疑名单！原因：" + reason);
     }
 
     public static void removeSuspect(CommandSender operator, String player) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             operator.sendMessage("该玩家不存在！");
             return;
         }
-        File file = new File(MainClass.path + "/suspect/"+uuid+".yml");
+        File file = new File(MainClass.path + "/suspect/" + uuid + ".yml");
         if (file.exists()) {
             file.delete();
             operator.sendMessage("§a成功将玩家【" + player + "】从嫌疑名单移除！");
@@ -222,22 +221,22 @@ public class WardenAPI {
 
     public static String getUnBannedDate(String player) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             return "玩家不存在";
         }
         return getUnBannedDate(uuid);
     }
 
     public static String getUnBannedDate(UUID uuid) {
-        File file = new File(MainClass.path + "/ban/"+uuid+".yml");
-        if(file.exists()){
+        File file = new File(MainClass.path + "/ban/" + uuid + ".yml");
+        if (file.exists()) {
             Object object = new Config(file, Config.YAML).get(uuid + ".end", "");
-            if(object != null){
-                if(String.valueOf(object).equals("permanent")){
+            if (object != null) {
+                if (String.valueOf(object).equals("permanent")) {
                     return "永久封禁";
-                }else{
+                } else {
                     long end = (long) object;
-                    if(end > System.currentTimeMillis()){
+                    if (end > System.currentTimeMillis()) {
                         return MainClass.getDate(end);
                     }
                 }
@@ -248,22 +247,22 @@ public class WardenAPI {
 
     public static String getUnMutedDate(String player) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             return "玩家不存在";
         }
         return getUnMutedDate(uuid);
     }
 
     public static String getUnMutedDate(UUID uuid) {
-        File file = new File(MainClass.path + "/mute/"+uuid+".yml");
-        if(file.exists()){
+        File file = new File(MainClass.path + "/mute/" + uuid + ".yml");
+        if (file.exists()) {
             Object object = new Config(file, Config.YAML).get("end", "");
-            if(object != null){
-                if(String.valueOf(object).equals("permanent")){
+            if (object != null) {
+                if (String.valueOf(object).equals("permanent")) {
                     return "永久封禁";
-                }else{
+                } else {
                     long end = (long) object;
-                    if(end > System.currentTimeMillis()){
+                    if (end > System.currentTimeMillis()) {
                         return MainClass.getDate(end);
                     }
                 }
@@ -274,22 +273,22 @@ public class WardenAPI {
 
     public static String getSuspectDate(String player) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             return "玩家不存在";
         }
         return getSuspectDate(uuid);
     }
 
     public static String getSuspectDate(UUID uuid) {
-        File file = new File(MainClass.path + "/suspect/"+uuid+".yml");
-        if(file.exists()){
+        File file = new File(MainClass.path + "/suspect/" + uuid + ".yml");
+        if (file.exists()) {
             Object object = new Config(file, Config.YAML).get("end", "");
-            if(object != null){
-                if(String.valueOf(object).equals("permanent")){
+            if (object != null) {
+                if (String.valueOf(object).equals("permanent")) {
                     return "永久封禁";
-                }else{
+                } else {
                     long end = (long) object;
-                    if(end > System.currentTimeMillis()){
+                    if (end > System.currentTimeMillis()) {
                         return MainClass.getDate(end);
                     }
                 }
@@ -300,14 +299,14 @@ public class WardenAPI {
 
     public static long getRemainedBannedTime(String player) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             return 0;
         }
         return getRemainedBannedTime(uuid);
     }
 
     public static long getRemainedBannedTime(UUID uuid) {
-        File file = new File(MainClass.path + "/ban/"+uuid+".yml");
+        File file = new File(MainClass.path + "/ban/" + uuid + ".yml");
         if (file.exists()) {
             Config config = new Config(file, Config.YAML);
             Object object = config.get("end");
@@ -327,14 +326,14 @@ public class WardenAPI {
 
     public static long getRemainedMutedTime(String player) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             return 0;
         }
         return getRemainedMutedTime(uuid);
     }
 
     public static long getRemainedMutedTime(UUID uuid) {
-        File file = new File(MainClass.path + "/mute/"+uuid+".yml");
+        File file = new File(MainClass.path + "/mute/" + uuid + ".yml");
         if (file.exists()) {
             Config config = new Config(file, Config.YAML);
             Object object = config.get("end");
@@ -354,10 +353,10 @@ public class WardenAPI {
 
     public static long getRemainedSuspectTime(String player) {
         UUID uuid = getUUID(player);
-        if(uuid == null){
+        if (uuid == null) {
             return 0;
         }
-        File file = new File(MainClass.path + "/suspect/"+uuid+".yml");
+        File file = new File(MainClass.path + "/suspect/" + uuid + ".yml");
         if (file.exists()) {
             Config config = new Config(file, Config.YAML);
             Object object = config.get("end");
@@ -376,13 +375,13 @@ public class WardenAPI {
         return 0;
     }
 
-    public static UUID getUUID(String player){
+    public static UUID getUUID(String player) {
         Player p = Server.getInstance().getPlayerExact(player);
-        if(p != null){
+        if (p != null) {
             return p.getUniqueId();
-        }else{
+        } else {
             Optional<UUID> uuid = Server.getInstance().lookupName(player);
-            if(uuid.isPresent()){
+            if (uuid.isPresent()) {
                 return uuid.get();
             }
         }

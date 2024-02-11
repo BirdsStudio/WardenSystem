@@ -34,10 +34,10 @@ public class FormMain {
             return;
         }
         MainClass.staffData.get(player.getName()).setDealing(null);
-        FormWindowSimple window = new FormWindowSimple("协管系统", "您好，【" + (data.getLevelType() == WardenLevelType.OPStaff ? "协管主管" : "协管员") + "】" + player.getName() + "！");
-        if(data.getLevelType() == WardenLevelType.Dev){
+        FormWindowSimple window = new FormWindowSimple("协管系统", "您好，【" + (data.getLevelType() == WardenLevelType.ADMIN ? "协管主管" : "协管员") + "】" + player.getName() + "！");
+        if (data.getLevelType() == WardenLevelType.Dev) {
             window.addButton(new ElementButton("Bug反馈 " + (MainClass.bugReports.size() > 0 ? "§c§l[" + MainClass.bugReports.size() + "§r]" : "[§a§l0§r]")));
-        }else{
+        } else {
             window.addButton(new ElementButton("举报 " + (MainClass.byPassReports.size() > 0 ? "§c§l[" + MainClass.byPassReports.size() + "§r]" : "[§a§l0§r]")));
         }
         window.addButton(new ElementButton("处罚系统"));
@@ -55,9 +55,10 @@ public class FormMain {
         }
         window.addButton(new ElementButton("举报/反馈bug"));
         window.addButton(new ElementButton("个人中心"));
-        if (data.getLevelType() == WardenLevelType.OPStaff) {
+        if (data.getLevelType() == WardenLevelType.ADMIN) {
             window.addButton(new ElementButton("管理协管"));
-        }else if(data.getLevelType() == WardenLevelType.Dev){
+            window.addButton(new ElementButton("实用工具"));
+        } else if (data.getLevelType() == WardenLevelType.Dev) {
             window.addButton(new ElementButton("实用工具"));
         }
         WardenEventListener.showFormWindow(player, window, FormType.WardenMain);
@@ -77,7 +78,7 @@ public class FormMain {
         StringBuilder builder = new StringBuilder();
         Map<String, Integer> cacheMap = new HashMap<>();
         for (Map.Entry<String, WardenData> entry : MainClass.staffData.entrySet()) {
-            if (entry.getValue().getLevelType() == WardenLevelType.OPStaff) {
+            if (entry.getValue().getLevelType() == WardenLevelType.ADMIN) {
                 continue;
             }
             cacheMap.put(entry.getKey(), entry.getValue().getDealBugReportTimes() + entry.getValue().getDealBypassReportTimes());
@@ -126,7 +127,7 @@ public class FormMain {
         ElementDropdown dropdown = new ElementDropdown("协管列表");
         dropdown.addOption(noSelectedItemText);
         for (Map.Entry<String, WardenData> entry : MainClass.staffData.entrySet()) {
-            if (entry.getValue().getLevelType() != WardenLevelType.OPStaff) {
+            if (entry.getValue().getLevelType() != WardenLevelType.ADMIN) {
                 dropdown.addOption(entry.getKey());
             }
         }
@@ -158,7 +159,7 @@ public class FormMain {
             }
             if (MainClass.staffData.containsKey(p.getName())) {
                 WardenData data = MainClass.staffData.get(p.getName());
-                if (data.getLevelType() == WardenLevelType.OPStaff) {
+                if (data.getLevelType() == WardenLevelType.ADMIN) {
                     onlinePlayers.add("§6" + p.getName());
                 } else {
                     onlinePlayers.add("§e" + p.getName());
@@ -252,7 +253,7 @@ public class FormMain {
         window.addElement(new ElementLabel(report.anonymous ? "* 反馈玩家要求匿名，故不公布玩家昵称！" : "反馈玩家：" + report.player));
         WardenData data = MainClass.staffData.get(report.getSuspect());
         window.addElement(new ElementLabel("事务信息：" + report.info));
-        window.addElement(new ElementLabel("被举报者：" + (data == null ? report.getSuspect() : (data.getLevelType() == WardenLevelType.OPStaff ? "§6" + report.getSuspect() + "（协管主管）" : "§e" + report.getSuspect() + "（协管）"))));
+        window.addElement(new ElementLabel("被举报者：" + (data == null ? report.getSuspect() : (data.getLevelType() == WardenLevelType.ADMIN ? "§6" + report.getSuspect() + "（协管主管）" : "§e" + report.getSuspect() + "（协管）"))));
         window.addElement(new ElementLabel("反馈时间：" + MainClass.getDate(report.millis)));
         List<String> options = new ArrayList<>();
         options.add("§a已核实");

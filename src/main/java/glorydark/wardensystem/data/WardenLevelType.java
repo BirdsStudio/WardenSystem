@@ -1,7 +1,7 @@
 package glorydark.wardensystem.data;
 
 public enum WardenLevelType {
-    OPStaff,
+    ADMIN,
     Staff,
     Dev
 }

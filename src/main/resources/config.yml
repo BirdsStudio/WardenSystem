@@ -1,6 +1,7 @@
 command: "r"
+# 可以使用实用工具
 dev: []
-opstaffs: []
+admins: []
 staffs: []
 forbid_modify_worlds:
   - world

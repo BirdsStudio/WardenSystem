@@ -31,7 +31,7 @@ public class SuspectData {
             return true;
         }
         if (System.currentTimeMillis() >= endMillis) {
-            Config suspects = new Config(MainClass.path + "/suspects/"+ uuid +".yml", Config.YAML);
+            Config suspects = new Config(MainClass.path + "/suspects/" + uuid + ".yml", Config.YAML);
             suspects.remove(uuid);
             suspects.save();
             return false;

@@ -52,6 +52,18 @@ public class MainClass extends PluginBase {
 
     public static String bannedExecuteCommand;
 
+    public static String getDate(long millis) {
+        Date date = new Date(millis);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日 HH时mm分ss秒");
+        return format.format(date);
+    }
+
+    public static String getUltraPrecisionDate(long millis) {
+        Date date = new Date(millis);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日 HH时mm分ss秒SSS");
+        return format.format(date);
+    }
+
     @Override
     public void onLoad() {
         this.getLogger().info("WardenSystem 正在加载！");
@@ -87,12 +99,12 @@ public class MainClass extends PluginBase {
             data.setLevelType(WardenLevelType.Dev);
             staffData.put(player, data);
         }
-        for (String player : new ArrayList<>(config.getStringList("opstaffs"))) {
+        for (String player : new ArrayList<>(config.getStringList("admins"))) {
             if (staffData.containsKey(player)) {
                 continue;
             }
             WardenData data = new WardenData(player, null, new Config(path + "/staffs/" + player + ".yml", Config.YAML));
-            data.setLevelType(WardenLevelType.OPStaff);
+            data.setLevelType(WardenLevelType.ADMIN);
             staffData.put(player, data);
         }
         for (String player : new ArrayList<>(config.getStringList("staffs"))) {
@@ -121,7 +133,7 @@ public class MainClass extends PluginBase {
             ByPassReport report = new ByPassReport(brc.getString("info"), brc.getString("player"), brc.getString("suspect"), Long.parseLong(filename), brc.getBoolean("anonymous"));
             byPassReports.add(report);
         }
-        for(File file: Objects.requireNonNull(new File(path + "/mute/").listFiles())){
+        for (File file : Objects.requireNonNull(new File(path + "/mute/").listFiles())) {
             muted.add(file.getName().replace(".yml", ""));
         }
         File suspects = new File(path + "/suspect/");
@@ -158,18 +170,6 @@ public class MainClass extends PluginBase {
         this.getLogger().info("WardenSystem 卸载中...");
     }
 
-    public static String getDate(long millis) {
-        Date date = new Date(millis);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日 HH时mm分ss秒");
-        return format.format(date);
-    }
-
-    public static String getUltraPrecisionDate(long millis) {
-        Date date = new Date(millis);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日 HH时mm分ss秒SSS");
-        return format.format(date);
-    }
-
     public static class WardenCommand extends Command {
 
         public WardenCommand(String name) {
@@ -198,16 +198,16 @@ public class MainClass extends PluginBase {
                         List<String> admins = new ArrayList<>(config.getStringList("admins"));
                         List<String> staffs = new ArrayList<>(config.getStringList("staffs"));
                         List<String> devs = new ArrayList<>(config.getStringList("devs"));
-                        switch (strings[1]){
+                        switch (strings[1]) {
                             case "opstaff":
                                 staffs.remove(strings[2]);
                                 devs.remove(strings[2]);
                                 admins.add(strings[2]);
-                                if(staffData.containsKey(strings[2])){
-                                    staffData.get(strings[2]).setLevelType(WardenLevelType.OPStaff);
-                                }else{
-                                    WardenData data = new WardenData(strings[2], null, new Config(path+"/staffs/"+strings[2]+".yml", Config.YAML));
-                                    data.setLevelType(WardenLevelType.OPStaff);
+                                if (staffData.containsKey(strings[2])) {
+                                    staffData.get(strings[2]).setLevelType(WardenLevelType.ADMIN);
+                                } else {
+                                    WardenData data = new WardenData(strings[2], null, new Config(path + "/staffs/" + strings[2] + ".yml", Config.YAML));
+                                    data.setLevelType(WardenLevelType.ADMIN);
                                     staffData.put(strings[2], data);
                                 }
                                 commandSender.sendMessage("§a成功为玩家【" + strings[2] + "】赋予协管主管权限！");
@@ -217,10 +217,10 @@ public class MainClass extends PluginBase {
                                 staffs.add(strings[2]);
                                 devs.remove(strings[2]);
                                 admins.remove(strings[2]);
-                                if(staffData.containsKey(strings[2])){
+                                if (staffData.containsKey(strings[2])) {
                                     staffData.get(strings[2]).setLevelType(WardenLevelType.Staff);
-                                }else{
-                                    WardenData data = new WardenData(strings[2], null, new Config(path+"/staffs/"+strings[2]+".yml", Config.YAML));
+                                } else {
+                                    WardenData data = new WardenData(strings[2], null, new Config(path + "/staffs/" + strings[2] + ".yml", Config.YAML));
                                     data.setLevelType(WardenLevelType.Staff);
                                     staffData.put(strings[2], data);
                                 }
@@ -231,10 +231,10 @@ public class MainClass extends PluginBase {
                                 staffs.remove(strings[2]);
                                 devs.add(strings[2]);
                                 admins.remove(strings[2]);
-                                if(staffData.containsKey(strings[2])){
+                                if (staffData.containsKey(strings[2])) {
                                     staffData.get(strings[2]).setLevelType(WardenLevelType.Dev);
-                                }else{
-                                    WardenData data = new WardenData(strings[2], null, new Config(path+"/staffs/"+strings[2]+".yml", Config.YAML));
+                                } else {
+                                    WardenData data = new WardenData(strings[2], null, new Config(path + "/staffs/" + strings[2] + ".yml", Config.YAML));
                                     data.setLevelType(WardenLevelType.Dev);
                                     staffData.put(strings[2], data);
                                 }
@@ -259,7 +259,7 @@ public class MainClass extends PluginBase {
                         admins = new ArrayList<>(config.getStringList("admins"));
                         staffs = new ArrayList<>(config.getStringList("staffs"));
                         devs = new ArrayList<>(config.getStringList("devs"));
-                        switch (strings[1]){
+                        switch (strings[1]) {
                             case "opstaff":
                                 admins.remove(strings[2]);
                                 staffData.remove(strings[2]);
@@ -351,7 +351,7 @@ public class MainClass extends PluginBase {
                             log.log(Level.INFO, "CONSOLE执行：/warden workload");
                             Map<String, Integer> cacheMap = new HashMap<>();
                             for (Map.Entry<String, WardenData> entry : MainClass.staffData.entrySet()) {
-                                if (entry.getValue().getLevelType() == WardenLevelType.OPStaff) {
+                                if (entry.getValue().getLevelType() == WardenLevelType.ADMIN) {
                                     continue;
                                 }
                                 cacheMap.put(entry.getKey(), entry.getValue().getDealBugReportTimes() + entry.getValue().getDealBugReportTimes());
